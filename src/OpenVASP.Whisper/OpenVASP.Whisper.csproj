@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Nethereum.Web3" Version="3.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\OpenVASP.Messaging\OpenVASP.Messaging.csproj" />
+    <ProjectReference Include="..\OpenVASP.ProtocolMessages\OpenVASP.ProtocolMessages.csproj" />
+  </ItemGroup>
+
+</Project>
