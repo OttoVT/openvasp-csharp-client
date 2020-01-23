@@ -29,25 +29,27 @@ namespace OpenVASP.ProtocolMessages.Messages {
             "c2lvblJlcGx5TWVzc2FnZS5wcm90bxohUHJvdG9UcmFuc2ZlclJlcXVlc3RN",
             "ZXNzYWdlLnByb3RvGh9Qcm90b1RyYW5zZmVyUmVwbHlNZXNzYWdlLnByb3Rv",
             "GiJQcm90b1RyYW5zZmVyRGlzcGF0Y2hNZXNzYWdlLnByb3RvGiZQcm90b1Ry",
-            "YW5zZmVyQ29uZmlybWF0aW9uTWVzc2FnZS5wcm90byKwBAoTUHJvdG9NZXNz",
-            "YWdlV3JhcHBlchJQChdzZXNzaW9uX3JlcXVlc3RfbWVzc2FnZRgBIAEoCzIt",
-            "LnByb3RvYnVmX29wZW52YXNwLlByb3RvU2Vzc2lvblJlcXVlc3RNZXNzYWdl",
-            "SAASTAoVc2Vzc2lvbl9yZXBseV9tZXNzYWdlGAIgASgLMisucHJvdG9idWZf",
-            "b3BlbnZhc3AuUHJvdG9TZXNzaW9uUmVwbHlNZXNzYWdlSAASUgoYdHJhbnNm",
-            "ZXJfcmVxdWVzdF9tZXNzYWdlGAMgASgLMi4ucHJvdG9idWZfb3BlbnZhc3Au",
-            "UHJvdG9UcmFuc2ZlclJlcXVlc3RNZXNzYWdlSAASTgoWdHJhbnNmZXJfcmVw",
-            "bHlfbWVzc2FnZRgEIAEoCzIsLnByb3RvYnVmX29wZW52YXNwLlByb3RvVHJh",
-            "bnNmZXJSZXBseU1lc3NhZ2VIABJUChl0cmFuc2Zlcl9kaXNwYXRjaF9tZXNz",
-            "YWdlGAUgASgLMi8ucHJvdG9idWZfb3BlbnZhc3AuUHJvdG9UcmFuc2ZlckRp",
-            "c3BhdGNoTWVzc2FnZUgAEl0KHnRyYW5zYWZlcl9jb25maXJtYXRpb25fbWVz",
-            "c2FnZRgGIAEoCzIzLnByb3RvYnVmX29wZW52YXNwLlByb3RvVHJhbnNmZXJD",
-            "b25maXJtYXRpb25NZXNzYWdlSAASGQoOcmVzZXJ2ZWRfZmllbGQY5wcgASgF",
-            "SABCBQoDbXNnQiWqAiJPcGVuVkFTUC5Qcm90b2NvbE1lc3NhZ2VzLk1lc3Nh",
-            "Z2VzYgZwcm90bzM="));
+            "YW5zZmVyQ29uZmlybWF0aW9uTWVzc2FnZS5wcm90bxodUHJvdG9UZXJtaW5h",
+            "dGlvbk1lc3NhZ2UucHJvdG8i+wQKE1Byb3RvTWVzc2FnZVdyYXBwZXISUAoX",
+            "c2Vzc2lvbl9yZXF1ZXN0X21lc3NhZ2UYASABKAsyLS5wcm90b2J1Zl9vcGVu",
+            "dmFzcC5Qcm90b1Nlc3Npb25SZXF1ZXN0TWVzc2FnZUgAEkwKFXNlc3Npb25f",
+            "cmVwbHlfbWVzc2FnZRgCIAEoCzIrLnByb3RvYnVmX29wZW52YXNwLlByb3Rv",
+            "U2Vzc2lvblJlcGx5TWVzc2FnZUgAElIKGHRyYW5zZmVyX3JlcXVlc3RfbWVz",
+            "c2FnZRgDIAEoCzIuLnByb3RvYnVmX29wZW52YXNwLlByb3RvVHJhbnNmZXJS",
+            "ZXF1ZXN0TWVzc2FnZUgAEk4KFnRyYW5zZmVyX3JlcGx5X21lc3NhZ2UYBCAB",
+            "KAsyLC5wcm90b2J1Zl9vcGVudmFzcC5Qcm90b1RyYW5zZmVyUmVwbHlNZXNz",
+            "YWdlSAASVAoZdHJhbnNmZXJfZGlzcGF0Y2hfbWVzc2FnZRgFIAEoCzIvLnBy",
+            "b3RvYnVmX29wZW52YXNwLlByb3RvVHJhbnNmZXJEaXNwYXRjaE1lc3NhZ2VI",
+            "ABJdCh50cmFuc2FmZXJfY29uZmlybWF0aW9uX21lc3NhZ2UYBiABKAsyMy5w",
+            "cm90b2J1Zl9vcGVudmFzcC5Qcm90b1RyYW5zZmVyQ29uZmlybWF0aW9uTWVz",
+            "c2FnZUgAEkkKE3Rlcm1pbmF0aW9uX21lc3NhZ2UYByABKAsyKi5wcm90b2J1",
+            "Zl9vcGVudmFzcC5Qcm90b1Rlcm1pbmF0aW9uTWVzc2FnZUgAEhkKDnJlc2Vy",
+            "dmVkX2ZpZWxkGOcHIAEoBUgAQgUKA21zZ0IlqgIiT3BlblZBU1AuUHJvdG9j",
+            "b2xNZXNzYWdlcy5NZXNzYWdlc2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
-          new pbr::FileDescriptor[] { global::OpenVASP.ProtocolMessages.Messages.ProtoSessionRequestMessageReflection.Descriptor, global::OpenVASP.ProtocolMessages.Messages.ProtoSessionReplyMessageReflection.Descriptor, global::OpenVASP.ProtocolMessages.Messages.ProtoTransferRequestMessageReflection.Descriptor, global::OpenVASP.ProtocolMessages.Messages.ProtoTransferReplyMessageReflection.Descriptor, global::OpenVASP.ProtocolMessages.Messages.ProtoTransferDispatchMessageReflection.Descriptor, global::OpenVASP.ProtocolMessages.Messages.ProtoTransferConfirmationMessageReflection.Descriptor, },
+          new pbr::FileDescriptor[] { global::OpenVASP.ProtocolMessages.Messages.ProtoSessionRequestMessageReflection.Descriptor, global::OpenVASP.ProtocolMessages.Messages.ProtoSessionReplyMessageReflection.Descriptor, global::OpenVASP.ProtocolMessages.Messages.ProtoTransferRequestMessageReflection.Descriptor, global::OpenVASP.ProtocolMessages.Messages.ProtoTransferReplyMessageReflection.Descriptor, global::OpenVASP.ProtocolMessages.Messages.ProtoTransferDispatchMessageReflection.Descriptor, global::OpenVASP.ProtocolMessages.Messages.ProtoTransferConfirmationMessageReflection.Descriptor, global::OpenVASP.ProtocolMessages.Messages.ProtoTerminationMessageReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::OpenVASP.ProtocolMessages.Messages.ProtoMessageWrapper), global::OpenVASP.ProtocolMessages.Messages.ProtoMessageWrapper.Parser, new[]{ "SessionRequestMessage", "SessionReplyMessage", "TransferRequestMessage", "TransferReplyMessage", "TransferDispatchMessage", "TransaferConfirmationMessage", "ReservedField" }, new[]{ "Msg" }, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::OpenVASP.ProtocolMessages.Messages.ProtoMessageWrapper), global::OpenVASP.ProtocolMessages.Messages.ProtoMessageWrapper.Parser, new[]{ "SessionRequestMessage", "SessionReplyMessage", "TransferRequestMessage", "TransferReplyMessage", "TransferDispatchMessage", "TransaferConfirmationMessage", "TerminationMessage", "ReservedField" }, new[]{ "Msg" }, null, null, null)
           }));
     }
     #endregion
@@ -97,6 +99,9 @@ namespace OpenVASP.ProtocolMessages.Messages {
           break;
         case MsgOneofCase.TransaferConfirmationMessage:
           TransaferConfirmationMessage = other.TransaferConfirmationMessage.Clone();
+          break;
+        case MsgOneofCase.TerminationMessage:
+          TerminationMessage = other.TerminationMessage.Clone();
           break;
         case MsgOneofCase.ReservedField:
           ReservedField = other.ReservedField;
@@ -177,6 +182,17 @@ namespace OpenVASP.ProtocolMessages.Messages {
       }
     }
 
+    /// <summary>Field number for the "termination_message" field.</summary>
+    public const int TerminationMessageFieldNumber = 7;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::OpenVASP.ProtocolMessages.Messages.ProtoTerminationMessage TerminationMessage {
+      get { return msgCase_ == MsgOneofCase.TerminationMessage ? (global::OpenVASP.ProtocolMessages.Messages.ProtoTerminationMessage) msg_ : null; }
+      set {
+        msg_ = value;
+        msgCase_ = value == null ? MsgOneofCase.None : MsgOneofCase.TerminationMessage;
+      }
+    }
+
     /// <summary>Field number for the "reserved_field" field.</summary>
     public const int ReservedFieldFieldNumber = 999;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -198,6 +214,7 @@ namespace OpenVASP.ProtocolMessages.Messages {
       TransferReplyMessage = 4,
       TransferDispatchMessage = 5,
       TransaferConfirmationMessage = 6,
+      TerminationMessage = 7,
       ReservedField = 999,
     }
     private MsgOneofCase msgCase_ = MsgOneofCase.None;
@@ -231,6 +248,7 @@ namespace OpenVASP.ProtocolMessages.Messages {
       if (!object.Equals(TransferReplyMessage, other.TransferReplyMessage)) return false;
       if (!object.Equals(TransferDispatchMessage, other.TransferDispatchMessage)) return false;
       if (!object.Equals(TransaferConfirmationMessage, other.TransaferConfirmationMessage)) return false;
+      if (!object.Equals(TerminationMessage, other.TerminationMessage)) return false;
       if (ReservedField != other.ReservedField) return false;
       if (MsgCase != other.MsgCase) return false;
       return Equals(_unknownFields, other._unknownFields);
@@ -245,6 +263,7 @@ namespace OpenVASP.ProtocolMessages.Messages {
       if (msgCase_ == MsgOneofCase.TransferReplyMessage) hash ^= TransferReplyMessage.GetHashCode();
       if (msgCase_ == MsgOneofCase.TransferDispatchMessage) hash ^= TransferDispatchMessage.GetHashCode();
       if (msgCase_ == MsgOneofCase.TransaferConfirmationMessage) hash ^= TransaferConfirmationMessage.GetHashCode();
+      if (msgCase_ == MsgOneofCase.TerminationMessage) hash ^= TerminationMessage.GetHashCode();
       if (msgCase_ == MsgOneofCase.ReservedField) hash ^= ReservedField.GetHashCode();
       hash ^= (int) msgCase_;
       if (_unknownFields != null) {
@@ -284,6 +303,10 @@ namespace OpenVASP.ProtocolMessages.Messages {
         output.WriteRawTag(50);
         output.WriteMessage(TransaferConfirmationMessage);
       }
+      if (msgCase_ == MsgOneofCase.TerminationMessage) {
+        output.WriteRawTag(58);
+        output.WriteMessage(TerminationMessage);
+      }
       if (msgCase_ == MsgOneofCase.ReservedField) {
         output.WriteRawTag(184, 62);
         output.WriteInt32(ReservedField);
@@ -313,6 +336,9 @@ namespace OpenVASP.ProtocolMessages.Messages {
       }
       if (msgCase_ == MsgOneofCase.TransaferConfirmationMessage) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(TransaferConfirmationMessage);
+      }
+      if (msgCase_ == MsgOneofCase.TerminationMessage) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(TerminationMessage);
       }
       if (msgCase_ == MsgOneofCase.ReservedField) {
         size += 2 + pb::CodedOutputStream.ComputeInt32Size(ReservedField);
@@ -364,6 +390,12 @@ namespace OpenVASP.ProtocolMessages.Messages {
             TransaferConfirmationMessage = new global::OpenVASP.ProtocolMessages.Messages.ProtoTransferConfirmationMessage();
           }
           TransaferConfirmationMessage.MergeFrom(other.TransaferConfirmationMessage);
+          break;
+        case MsgOneofCase.TerminationMessage:
+          if (TerminationMessage == null) {
+            TerminationMessage = new global::OpenVASP.ProtocolMessages.Messages.ProtoTerminationMessage();
+          }
+          TerminationMessage.MergeFrom(other.TerminationMessage);
           break;
         case MsgOneofCase.ReservedField:
           ReservedField = other.ReservedField;
@@ -433,6 +465,15 @@ namespace OpenVASP.ProtocolMessages.Messages {
             }
             input.ReadMessage(subBuilder);
             TransaferConfirmationMessage = subBuilder;
+            break;
+          }
+          case 58: {
+            global::OpenVASP.ProtocolMessages.Messages.ProtoTerminationMessage subBuilder = new global::OpenVASP.ProtocolMessages.Messages.ProtoTerminationMessage();
+            if (msgCase_ == MsgOneofCase.TerminationMessage) {
+              subBuilder.MergeFrom(TerminationMessage);
+            }
+            input.ReadMessage(subBuilder);
+            TerminationMessage = subBuilder;
             break;
           }
           case 7992: {
