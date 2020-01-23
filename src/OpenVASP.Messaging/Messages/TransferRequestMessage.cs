@@ -9,7 +9,7 @@
             TransferRequest transfer,
             VaspInformation vasp)
         {
-            MessageType = MessageType.SessionReply;
+            MessageType = MessageType.TransferRequest;
             Message = message;
             Originator = originator;
             Beneficiary = beneficiary;

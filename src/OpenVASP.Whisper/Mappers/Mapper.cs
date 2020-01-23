@@ -114,16 +114,32 @@ namespace OpenVASP.Whisper.Mappers
             return proto;
         }
 
-        public static ProtoTransfer MapTransferToProto(TransferRequest messageTransfer)
+        public static ProtoTransferRequest MapTransferToProto(TransferRequest messageTransfer)
         {
             if (messageTransfer == null)
                 return null;
 
-            var proto = new ProtoTransfer()
+            var proto = new ProtoTransferRequest()
             {
                 Amount = messageTransfer.Amount,
                 TransferType = (int)messageTransfer.TransferType,
                 VirtualAssetName = messageTransfer.VirtualAssetType.ToString()
+            };
+
+            return proto;
+        }
+
+        public static ProtoTransferReply MapTransferToProto(TransferReply messageTransfer)
+        {
+            if (messageTransfer == null)
+                return null;
+
+            var proto = new ProtoTransferReply()
+            {
+                Amount = messageTransfer.Amount,
+                TransferType = (int)messageTransfer.TransferType,
+                VirtualAssetName = messageTransfer.VirtualAssetType.ToString(),
+                DestinationAddress = messageTransfer.DestinationAddress
             };
 
             return proto;
@@ -289,7 +305,7 @@ namespace OpenVASP.Whisper.Mappers
             return obj;
         }
 
-        public static TransferRequest MapTransferFromProto(ProtoTransfer messageTransfer)
+        public static TransferRequest MapTransferFromProto(ProtoTransferRequest messageTransfer)
         {
             if (messageTransfer == null)
                 return null;
@@ -297,6 +313,22 @@ namespace OpenVASP.Whisper.Mappers
             Enum.TryParse(messageTransfer.VirtualAssetName, out VirtualAssetType assetType);
 
             var obj = new TransferRequest(assetType, (TransferType)messageTransfer.TransferType, messageTransfer.Amount);
+
+            return obj;
+        }
+
+        public static TransferReply MapTransferFromProto(ProtoTransferReply messageTransfer)
+        {
+            if (messageTransfer == null)
+                return null;
+
+            Enum.TryParse(messageTransfer.VirtualAssetName, out VirtualAssetType assetType);
+
+            var obj = new TransferReply(
+                assetType, 
+                (TransferType)messageTransfer.TransferType, 
+                messageTransfer.Amount,
+                messageTransfer.DestinationAddress);
 
             return obj;
         }
