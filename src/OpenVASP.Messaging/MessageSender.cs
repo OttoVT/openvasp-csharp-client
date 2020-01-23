@@ -15,6 +15,16 @@ namespace OpenVASP.Messaging
             this.messageFormatter = messageFormatter;
             this.transportClient = transportClient;
         }
+
+        public async Task<string> SendMessageAsync(MessageBase message)
+        {
+            var payload = messageFormatter.GetPayload(message);
+            var messageEnvelope = messageFormatter.GetEnvelope(message);
+            var messageId = await transportClient.SendMessageAsync(messageEnvelope, payload);
+
+            return messageId;
+        }
+
         public async Task<string> SendSessionRequestAsync(SessionRequestMessage sessionRequestMessage)
         {
             var payload = messageFormatter.GetPayload(sessionRequestMessage);

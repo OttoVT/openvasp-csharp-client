@@ -111,7 +111,7 @@ namespace OpenVASP.Whisper
 
                 case ProtoMessageWrapper.MsgOneofCase.SessionReplyMessage:
                     {
-                        message = SessionRequestMessageMapper.MapFromProto(wrapper.SessionRequestMessage);
+                        message = SessionReplyMessageMapper.MapFromProto(wrapper.SessionReplyMessage);
 
                         break;
                     }
@@ -152,6 +152,8 @@ namespace OpenVASP.Whisper
                 }
 
                 default:
+
+                    //TODO: Probably log it
                     break;
             }
 
