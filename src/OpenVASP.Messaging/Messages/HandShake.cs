@@ -1,18 +1,25 @@
 ﻿namespace OpenVASP.Messaging.Messages
 {
-    public class HandShake
+    public class HandShakeRequest
     {
         public string TopicA { get; private set; }
 
-        public string TopicB { get; private set; }
-
         public string ECDHPublicKey { get; private set; }
 
-        public HandShake(string topicA, string topicB, string ecdhPubKey)
+        public HandShakeRequest(string topicA, string ecdhPubKey)
         {
             TopicA = topicA;
-            TopicB = topicB;
             ECDHPublicKey = ecdhPubKey;
+        }
+    }
+
+    public class HandShakeResponse
+    {
+        public string TopicB { get; private set; }
+
+        public HandShakeResponse(string topicB)
+        {
+            TopicB = topicB;
         }
     }
 }

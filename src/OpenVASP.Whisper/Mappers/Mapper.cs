@@ -4,32 +4,19 @@ using System.Linq;
 using OpenVASP.Messaging.Messages;
 using OpenVASP.ProtocolMessages.Messages;
 
-namespace OpenVASP.Whisper
+namespace OpenVASP.Whisper.Mappers
 {
     public static class Mapper
     {
         #region TO_PROTO
-        public static ProtoSessionRequestMessage MapSessionRequestMessageToProto(SessionRequestMessage message)
-        {
-            var proto = new ProtoSessionRequestMessage()
-            {
-                Comment = message.Comment,
-                EcdshPubKey = message.HandShake.ECDHPublicKey,
-                Message = MapMessageToProto(message.Message),
-                TopicA = message.HandShake.TopicA,
-                VaspInfo = MapVaspInformationToProto(message.VASP)
-            };
 
-            return proto;
-        }
-
-        public static ProtoMessage MapMessageToProto(Message message)
+        public static ProtoMessage MapMessageToProto(MessageType messageType, Message message)
         {
             var proto = new ProtoMessage()
             {
                 MessageCode = message.MessageCode,
                 MessageId = message.MessageId,
-                MessageType = (int)message.MessageType,
+                MessageType = (int)messageType,
                 SessionId = message.SessionId
             };
 
@@ -48,8 +35,8 @@ namespace OpenVASP.Whisper
                 Bic = vaspInfo.BIC
             };
 
-            proto.JuridicalPersonId.Add(vaspInfo.JuridicalPersonIds.Select(x => MapJuridicalPersonIdToProto(x)));
-            proto.NaturalPersonId.Add(vaspInfo.NaturalPersonIds.Select(x => MapNaturalPersonIdToProto(x)));
+            proto.JuridicalPersonId.Add(vaspInfo.JuridicalPersonIds.Select<JuridicalPersonId, ProtoJuridicalPersonId>(x => MapJuridicalPersonIdToProto(x)));
+            proto.NaturalPersonId.Add(vaspInfo.NaturalPersonIds.Select<NaturalPersonId, ProtoNaturalPersonId>(x => MapNaturalPersonIdToProto(x)));
 
             return proto;
         }
@@ -63,10 +50,10 @@ namespace OpenVASP.Whisper
 
             var proto = new ProtoNaturalPersonId()
             {
-               IdentificationType = (int)naturalPersonId.IdentificationType,
-               Identifier = naturalPersonId.Identifier,
-               IssuingCountry = naturalPersonId.IssuingCountry.TwoLetterCode,
-               NonstateIssuer = naturalPersonId.NonStateIssuer ?? string.Empty
+                IdentificationType = (int)naturalPersonId.IdentificationType,
+                Identifier = naturalPersonId.Identifier,
+                IssuingCountry = naturalPersonId.IssuingCountry.TwoLetterCode,
+                NonstateIssuer = naturalPersonId.NonStateIssuer ?? string.Empty
             };
 
             return proto;
@@ -127,27 +114,9 @@ namespace OpenVASP.Whisper
             return proto;
         }
 
-        #endregion TO_PROTO
+        #endregion
 
         #region FROM_PROTO
-
-        public static SessionRequestMessage MapSessionRequestMessageFromProto(ProtoSessionRequestMessage message)
-        {
-            var messageIn = new Message(
-                MessageType.SessionRequest, 
-                message.Message.MessageId,
-                message.Message.SessionId,
-                message.Message.MessageCode);
-            var handshake = new HandShake(message.TopicA, null, message.EcdshPubKey);
-            var vasp = MapVaspInformationFromProto(message.VaspInfo);
-
-            var proto = new SessionRequestMessage(messageIn, handshake, vasp)
-            {
-                Comment = message.Comment,
-            };
-
-            return proto;
-        }
 
         public static VaspInformation MapVaspInformationFromProto(ProtoVaspInfo vaspInfo)
         {
@@ -157,8 +126,8 @@ namespace OpenVASP.Whisper
                 vaspInfo.VaspPubkey,
                 MapPostalAddressFromProto(vaspInfo.PostalAddress),
                 MapPlaceOfBirthFromProto(vaspInfo.PlaceOfBirth),
-                vaspInfo.NaturalPersonId?.Select(x => MapNaturalPersonIdFromProto(x)).ToArray(),
-                vaspInfo.JuridicalPersonId?.Select(x => MapJuridicalPersonIdFromProto(x)).ToArray(),
+                vaspInfo.NaturalPersonId?.Select<ProtoNaturalPersonId, NaturalPersonId>(x => MapNaturalPersonIdFromProto(x)).ToArray(),
+                vaspInfo.JuridicalPersonId?.Select<ProtoJuridicalPersonId, JuridicalPersonId>(x => MapJuridicalPersonIdFromProto(x)).ToArray(),
                 vaspInfo.Bic);
 
             return proto;
@@ -232,6 +201,6 @@ namespace OpenVASP.Whisper
             return proto;
         }
 
-        #endregion FROM_PROTO
+        #endregion
     }
 }

@@ -6,7 +6,7 @@ namespace OpenVASP.Messaging
     {
         MessageEnvelope GetEnvelope(MessageBase messageBase);
 
-        string GetPayload(SessionRequestMessage sessionRequestMessage);
+        string GetPayload(MessageBase sessionRequestMessage);
 
         MessageBase Deserialize(string payload, MessageEnvelope messageEnvelope);
     }

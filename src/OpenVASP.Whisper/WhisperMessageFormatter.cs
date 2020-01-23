@@ -1,9 +1,10 @@
-﻿using Google.Protobuf;
-using Google.Protobuf.WellKnownTypes;
+﻿using System;
+using Google.Protobuf;
 using Nethereum.Hex.HexConvertors.Extensions;
 using OpenVASP.Messaging;
 using OpenVASP.Messaging.Messages;
 using OpenVASP.ProtocolMessages.Messages;
+using OpenVASP.Whisper.Mappers;
 
 namespace OpenVASP.Whisper
 {
@@ -22,27 +23,37 @@ namespace OpenVASP.Whisper
             return messageEnvelope;
         }
 
-        public string GetPayload(SessionRequestMessage sessionRequestMessage)
+        public string GetPayload(MessageBase messageBase)
         {
-            var proto = Mapper.MapSessionRequestMessageToProto(sessionRequestMessage);
-            var wrapper = new ProtoMessageWrapper()
+            var wrapper = new ProtoMessageWrapper();
+
+            switch (messageBase.MessageType)
             {
-                SessionRequestMessage = proto
-            };
+                case MessageType.SessionRequest:
+                    {
+                        var proto = SessionRequestMessageMapper.MapToProto((SessionRequestMessage)messageBase);
+                        wrapper.SessionRequestMessage = proto;
+
+                        break;
+                    }
+
+                case MessageType.SessionReply:
+                    {
+                        var proto = SessionReplyMessageMapper.MapToProto((SessionReplyMessage)messageBase);
+                        wrapper.SessionReplyMessage = proto;
+
+                        break;
+                    }
+
+                default:
+                    throw new ArgumentException($"Message of type {messageBase.GetType()} contains enum message type {messageBase.MessageType}" +
+                                                $"which is not supported");
+            }
 
             var payload = wrapper.ToByteArray().ToHex(prefix: true);
 
             return payload;
         }
-
-        //public MessageType GetMessageType(string payload)
-        //{
-        //    var bytes = payload.HexToByteArray();
-        //    var protoMessage = Any.Parser.ParseFrom(bytes);
-        //    var type = (MessageType) protoMessage.MessageType;
-
-        //    return type;
-        //}
 
         public MessageBase Deserialize(string payload, MessageEnvelope messageEnvelope)
         {
@@ -52,11 +63,18 @@ namespace OpenVASP.Whisper
             switch (wrapper.MsgCase)
             {
                 case ProtoMessageWrapper.MsgOneofCase.SessionRequestMessage:
-                {
-                    message = Mapper.MapSessionRequestMessageFromProto(wrapper.SessionRequestMessage);
+                    {
+                        message = SessionRequestMessageMapper.MapFromProto(wrapper.SessionRequestMessage);
 
-                    break;
-                }
+                        break;
+                    }
+
+                case ProtoMessageWrapper.MsgOneofCase.SessionReplyMessage:
+                    {
+                        message = SessionRequestMessageMapper.MapFromProto(wrapper.SessionRequestMessage);
+
+                        break;
+                    }
 
                 default:
                     break;
