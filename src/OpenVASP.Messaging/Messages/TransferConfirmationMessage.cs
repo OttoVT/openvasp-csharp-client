@@ -12,7 +12,7 @@ namespace OpenVASP.Messaging.Messages
             Transaction transaction,
             VaspInformation vasp)
         {
-            MessageType = MessageType.TransferDispatch;
+            MessageType = MessageType.TransferConfirmation;
             Message = message;
             Originator = originator;
             Beneficiary = beneficiary;

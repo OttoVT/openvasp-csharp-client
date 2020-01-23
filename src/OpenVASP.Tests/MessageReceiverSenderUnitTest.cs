@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
+using Microsoft.VisualBasic;
 using Nethereum.Hex.HexConvertors.Extensions;
 using Nethereum.Signer;
 using OpenVASP.Messaging;
@@ -10,6 +11,7 @@ using OpenVASP.Messaging.Messages.Entities;
 using OpenVASP.Messaging.MessagingEngine;
 using OpenVASP.Whisper;
 using Xunit;
+using Transaction = OpenVASP.Messaging.Messages.Entities.Transaction;
 
 namespace OpenVASP.Tests
 {
@@ -88,6 +90,249 @@ namespace OpenVASP.Tests
             var response = receivedMessage;
 
             AssertTransferRequest(response, request);
+        }
+
+        [Fact]
+        public async Task TestSendingTransferReplyMessage()
+        {
+            var fakeTransport = new FakeTransortClient();
+            TransferReplyMessage receivedMessage = null;
+            var messageSender = new MessageSender(new WhisperMessageFormatter(), fakeTransport);
+            var messageHandlerResolver =
+                new MessageHandlerResolver(
+                    (typeof(TransferReplyMessage), new TransferReplyMessageHandler((messageForProcessing, token) =>
+                    {
+                        receivedMessage = messageForProcessing;
+                        return Task.FromResult(0);
+                    })));
+            var messageReceiver = new MessageReceiver(new WhisperMessageFormatter(), fakeTransport, messageHandlerResolver);
+            var request = GetTransferReplyMessage();
+
+            var messageHash = await messageSender.SendMessageAsync(request);
+
+            await messageReceiver.ReceiveMessagesAsync("fakeSource");
+
+            var response = receivedMessage;
+
+            AssertTransferReply(response, request);
+        }
+
+        [Fact]
+        public async Task TestSendingTransferDispatchMessage()
+        {
+            var fakeTransport = new FakeTransortClient();
+            TransferDispatchMessage receivedMessage = null;
+            var messageSender = new MessageSender(new WhisperMessageFormatter(), fakeTransport);
+            var messageHandlerResolver =
+                new MessageHandlerResolver(
+                    (typeof(TransferDispatchMessage), new TransferDispatchMessageHandler((messageForProcessing, token) =>
+                    {
+                        receivedMessage = messageForProcessing;
+                        return Task.FromResult(0);
+                    })));
+            var messageReceiver = new MessageReceiver(new WhisperMessageFormatter(), fakeTransport, messageHandlerResolver);
+            var request = GetTransferDispatchMessage();
+
+            var messageHash = await messageSender.SendMessageAsync(request);
+
+            await messageReceiver.ReceiveMessagesAsync("fakeSource");
+
+            var response = receivedMessage;
+
+            AssertTransferDispatch(response, request);
+        }
+
+        [Fact]
+        public async Task TestSendingTransferConfirmationMessage()
+        {
+            var fakeTransport = new FakeTransortClient();
+            TransferConfirmationMessage receivedMessage = null;
+            var messageSender = new MessageSender(new WhisperMessageFormatter(), fakeTransport);
+            var messageHandlerResolver =
+                new MessageHandlerResolver(
+                    (typeof(TransferConfirmationMessage), new TransferConfirmationMessageHandler((messageForProcessing, token) =>
+                    {
+                        receivedMessage = messageForProcessing;
+                        return Task.FromResult(0);
+                    })));
+            var messageReceiver = new MessageReceiver(new WhisperMessageFormatter(), fakeTransport, messageHandlerResolver);
+            var request = GetTransferConfirmationMessage();
+
+            var messageHash = await messageSender.SendMessageAsync(request);
+
+            await messageReceiver.ReceiveMessagesAsync("fakeSource");
+
+            var response = receivedMessage;
+
+            AssertTransferConfirmation(response, request);
+        }
+
+        [Fact]
+        public async Task TestSendingTerminationMessage()
+        {
+            var fakeTransport = new FakeTransortClient();
+            TerminationMessage receivedMessage = null;
+            var messageSender = new MessageSender(new WhisperMessageFormatter(), fakeTransport);
+            var messageHandlerResolver =
+                new MessageHandlerResolver(
+                    (typeof(TerminationMessage), new TerminationMessageHandler((messageForProcessing, token) =>
+                    {
+                        receivedMessage = messageForProcessing;
+                        return Task.FromResult(0);
+                    })));
+            var messageReceiver = new MessageReceiver(new WhisperMessageFormatter(), fakeTransport, messageHandlerResolver);
+            var request = GetTerminationMessage();
+
+            var messageHash = await messageSender.SendMessageAsync(request);
+
+            await messageReceiver.ReceiveMessagesAsync("fakeSource");
+
+            var response = receivedMessage;
+
+            AssertTermination(response, request);
+        }
+
+        private void AssertTermination(TerminationMessage response, TerminationMessage request)
+        {
+            Assert.NotNull(response);
+
+            Assert.Equal(request.MessageEnvelope.Topic, response.MessageEnvelope.Topic);
+            Assert.Equal(request.MessageEnvelope.EncryptionType, response.MessageEnvelope.EncryptionType);
+            Assert.Equal(request.MessageEnvelope.EncryptionKey, response.MessageEnvelope.EncryptionKey);
+
+            Assert.Equal(request.Comment, response.Comment);
+
+            Assert.Equal(request.Message.SessionId, response.Message.SessionId);
+            Assert.Equal(request.MessageType, response.MessageType);
+            Assert.Equal(request.Message.MessageCode, response.Message.MessageCode);
+            Assert.Equal(request.Message.MessageId, response.Message.MessageId);
+
+            AssertPlaceOfBirth(request.VASP.PlaceOfBirth, response.VASP.PlaceOfBirth);
+
+            Assert.Equal(request.VASP.BIC, response.VASP.BIC);
+            Assert.Equal(request.VASP.Name, response.VASP.Name);
+            Assert.Equal(request.VASP.VaspPublickKey, response.VASP.VaspPublickKey);
+            Assert.Equal(request.VASP.VaspIdentity, response.VASP.VaspIdentity);
+
+            Assert.Equal(request.VASP.PostalAddress.StreetName, response.VASP.PostalAddress.StreetName);
+            Assert.Equal(request.VASP.PostalAddress.AddressLine, response.VASP.PostalAddress.AddressLine);
+            Assert.Equal(request.VASP.PostalAddress.BuildingNumber, response.VASP.PostalAddress.BuildingNumber);
+            Assert.Equal(request.VASP.PostalAddress.Country, response.VASP.PostalAddress.Country);
+            Assert.Equal(request.VASP.PostalAddress.PostCode, response.VASP.PostalAddress.PostCode);
+
+            Assert.Equal(request.VASP.JuridicalPersonIds.Count(), response.VASP.JuridicalPersonIds.Count());
+
+            AssertJuridicalPersonIds(request.VASP.JuridicalPersonIds, response.VASP.JuridicalPersonIds);
+
+            Assert.Equal(request.VASP.NaturalPersonIds.Count(), response.VASP.NaturalPersonIds.Count());
+
+            AssertNaturalPersonIds(request.VASP.NaturalPersonIds, response.VASP.NaturalPersonIds);
+        }
+
+        private void AssertTransferDispatch(TransferDispatchMessage response, TransferDispatchMessage request)
+        {
+            Assert.NotNull(response);
+
+            Assert.Equal(request.MessageEnvelope.Topic, response.MessageEnvelope.Topic);
+            Assert.Equal(request.MessageEnvelope.EncryptionType, response.MessageEnvelope.EncryptionType);
+            Assert.Equal(request.MessageEnvelope.EncryptionKey, response.MessageEnvelope.EncryptionKey);
+
+            Assert.Equal(request.Comment, response.Comment);
+
+            Assert.Equal(request.Message.SessionId, response.Message.SessionId);
+            Assert.Equal(request.MessageType, response.MessageType);
+            Assert.Equal(request.Message.MessageCode, response.Message.MessageCode);
+            Assert.Equal(request.Message.MessageId, response.Message.MessageId);
+
+            AssertPlaceOfBirth(request.VASP.PlaceOfBirth, response.VASP.PlaceOfBirth);
+
+            Assert.Equal(request.VASP.BIC, response.VASP.BIC);
+            Assert.Equal(request.VASP.Name, response.VASP.Name);
+            Assert.Equal(request.VASP.VaspPublickKey, response.VASP.VaspPublickKey);
+            Assert.Equal(request.VASP.VaspIdentity, response.VASP.VaspIdentity);
+
+            Assert.Equal(request.VASP.PostalAddress.StreetName, response.VASP.PostalAddress.StreetName);
+            Assert.Equal(request.VASP.PostalAddress.AddressLine, response.VASP.PostalAddress.AddressLine);
+            Assert.Equal(request.VASP.PostalAddress.BuildingNumber, response.VASP.PostalAddress.BuildingNumber);
+            Assert.Equal(request.VASP.PostalAddress.Country, response.VASP.PostalAddress.Country);
+            Assert.Equal(request.VASP.PostalAddress.PostCode, response.VASP.PostalAddress.PostCode);
+
+            Assert.Equal(request.VASP.JuridicalPersonIds.Count(), response.VASP.JuridicalPersonIds.Count());
+
+            AssertJuridicalPersonIds(request.VASP.JuridicalPersonIds, response.VASP.JuridicalPersonIds);
+
+            Assert.Equal(request.VASP.NaturalPersonIds.Count(), response.VASP.NaturalPersonIds.Count());
+
+            AssertNaturalPersonIds(request.VASP.NaturalPersonIds, response.VASP.NaturalPersonIds);
+
+            Assert.Equal(request.Transfer.TransferType, response.Transfer.TransferType);
+            Assert.Equal(request.Transfer.VirtualAssetType, response.Transfer.VirtualAssetType);
+            Assert.Equal(request.Transfer.Amount, response.Transfer.Amount);
+            Assert.Equal(request.Transfer.DestinationAddress, response.Transfer.DestinationAddress);
+
+            AssertBeneficiary(request.Beneficiary, response.Beneficiary);
+
+            AssertOriginator(request.Originator, response.Originator);
+
+            AssertTransaction(request.Transaction, response.Transaction);
+        }
+
+        private void AssertTransferConfirmation(TransferConfirmationMessage response, TransferConfirmationMessage request)
+        {
+            Assert.NotNull(response);
+
+            Assert.Equal(request.MessageEnvelope.Topic, response.MessageEnvelope.Topic);
+            Assert.Equal(request.MessageEnvelope.EncryptionType, response.MessageEnvelope.EncryptionType);
+            Assert.Equal(request.MessageEnvelope.EncryptionKey, response.MessageEnvelope.EncryptionKey);
+
+            Assert.Equal(request.Comment, response.Comment);
+
+            Assert.Equal(request.Message.SessionId, response.Message.SessionId);
+            Assert.Equal(request.MessageType, response.MessageType);
+            Assert.Equal(request.Message.MessageCode, response.Message.MessageCode);
+            Assert.Equal(request.Message.MessageId, response.Message.MessageId);
+
+            AssertPlaceOfBirth(request.VASP.PlaceOfBirth, response.VASP.PlaceOfBirth);
+
+            Assert.Equal(request.VASP.BIC, response.VASP.BIC);
+            Assert.Equal(request.VASP.Name, response.VASP.Name);
+            Assert.Equal(request.VASP.VaspPublickKey, response.VASP.VaspPublickKey);
+            Assert.Equal(request.VASP.VaspIdentity, response.VASP.VaspIdentity);
+
+            Assert.Equal(request.VASP.PostalAddress.StreetName, response.VASP.PostalAddress.StreetName);
+            Assert.Equal(request.VASP.PostalAddress.AddressLine, response.VASP.PostalAddress.AddressLine);
+            Assert.Equal(request.VASP.PostalAddress.BuildingNumber, response.VASP.PostalAddress.BuildingNumber);
+            Assert.Equal(request.VASP.PostalAddress.Country, response.VASP.PostalAddress.Country);
+            Assert.Equal(request.VASP.PostalAddress.PostCode, response.VASP.PostalAddress.PostCode);
+
+            Assert.Equal(request.VASP.JuridicalPersonIds.Count(), response.VASP.JuridicalPersonIds.Count());
+
+            AssertJuridicalPersonIds(request.VASP.JuridicalPersonIds, response.VASP.JuridicalPersonIds);
+
+            Assert.Equal(request.VASP.NaturalPersonIds.Count(), response.VASP.NaturalPersonIds.Count());
+
+            AssertNaturalPersonIds(request.VASP.NaturalPersonIds, response.VASP.NaturalPersonIds);
+
+            Assert.Equal(request.Transfer.TransferType, response.Transfer.TransferType);
+            Assert.Equal(request.Transfer.VirtualAssetType, response.Transfer.VirtualAssetType);
+            Assert.Equal(request.Transfer.Amount, response.Transfer.Amount);
+            Assert.Equal(request.Transfer.DestinationAddress, response.Transfer.DestinationAddress);
+
+            AssertBeneficiary(request.Beneficiary, response.Beneficiary);
+
+            AssertOriginator(request.Originator, response.Originator);
+
+            AssertTransaction(request.Transaction, response.Transaction);
+        }
+
+        private void AssertTransaction(Transaction request, Transaction response)
+        {
+            Assert.Equal(request.TransactionId, response.TransactionId);
+            Assert.Equal(request.DateTime.Date, response.DateTime.Date);
+            Assert.Equal(request.DateTime.Hour, response.DateTime.Hour);
+            Assert.Equal(request.DateTime.Minute, response.DateTime.Minute);
+            Assert.Equal(request.DateTime.Second, response.DateTime.Second);
+            Assert.Equal(request.SendingAddress, response.SendingAddress);
         }
 
         private static void AssertSessionRequest(SessionRequestMessage response, SessionRequestMessage request)
@@ -213,6 +458,52 @@ namespace OpenVASP.Tests
             Assert.Equal(request.Transfer.TransferType, response.Transfer.TransferType);
             Assert.Equal(request.Transfer.VirtualAssetType, response.Transfer.VirtualAssetType);
             Assert.Equal(request.Transfer.Amount, response.Transfer.Amount);
+
+            AssertBeneficiary(request.Beneficiary, response.Beneficiary);
+
+            AssertOriginator(request.Originator, response.Originator);
+        }
+
+        private static void AssertTransferReply(TransferReplyMessage response, TransferReplyMessage request)
+        {
+            Assert.NotNull(response);
+
+            Assert.Equal(request.MessageEnvelope.Topic, response.MessageEnvelope.Topic);
+            Assert.Equal(request.MessageEnvelope.EncryptionType, response.MessageEnvelope.EncryptionType);
+            Assert.Equal(request.MessageEnvelope.EncryptionKey, response.MessageEnvelope.EncryptionKey);
+
+            Assert.Equal(request.Comment, response.Comment);
+
+            Assert.Equal(request.Message.SessionId, response.Message.SessionId);
+            Assert.Equal(request.MessageType, response.MessageType);
+            Assert.Equal(request.Message.MessageCode, response.Message.MessageCode);
+            Assert.Equal(request.Message.MessageId, response.Message.MessageId);
+
+            AssertPlaceOfBirth(request.VASP.PlaceOfBirth, response.VASP.PlaceOfBirth);
+
+            Assert.Equal(request.VASP.BIC, response.VASP.BIC);
+            Assert.Equal(request.VASP.Name, response.VASP.Name);
+            Assert.Equal(request.VASP.VaspPublickKey, response.VASP.VaspPublickKey);
+            Assert.Equal(request.VASP.VaspIdentity, response.VASP.VaspIdentity);
+
+            Assert.Equal(request.VASP.PostalAddress.StreetName, response.VASP.PostalAddress.StreetName);
+            Assert.Equal(request.VASP.PostalAddress.AddressLine, response.VASP.PostalAddress.AddressLine);
+            Assert.Equal(request.VASP.PostalAddress.BuildingNumber, response.VASP.PostalAddress.BuildingNumber);
+            Assert.Equal(request.VASP.PostalAddress.Country, response.VASP.PostalAddress.Country);
+            Assert.Equal(request.VASP.PostalAddress.PostCode, response.VASP.PostalAddress.PostCode);
+
+            Assert.Equal(request.VASP.JuridicalPersonIds.Count(), response.VASP.JuridicalPersonIds.Count());
+
+            AssertJuridicalPersonIds(request.VASP.JuridicalPersonIds, response.VASP.JuridicalPersonIds);
+
+            Assert.Equal(request.VASP.NaturalPersonIds.Count(), response.VASP.NaturalPersonIds.Count());
+
+            AssertNaturalPersonIds(request.VASP.NaturalPersonIds, response.VASP.NaturalPersonIds);
+
+            Assert.Equal(request.Transfer.TransferType, response.Transfer.TransferType);
+            Assert.Equal(request.Transfer.VirtualAssetType, response.Transfer.VirtualAssetType);
+            Assert.Equal(request.Transfer.Amount, response.Transfer.Amount);
+            Assert.Equal(request.Transfer.DestinationAddress, response.Transfer.DestinationAddress);
 
             AssertBeneficiary(request.Beneficiary, response.Beneficiary);
 
@@ -474,6 +765,277 @@ namespace OpenVASP.Tests
                 Comment = "This is test message",
             };
 
+            return request;
+        }
+
+        private static TransferReplyMessage GetTransferReplyMessage()
+        {
+            //Should be a contract
+            var vaspKey = EthECKey.GenerateKey();
+
+            //4Bytes 
+            var topic = "0x12345678"; //"0x" + "My Topic".GetHashCode().ToString("x");
+
+            var message = new Message(
+                Guid.NewGuid().ToByteArray().ToHex(prefix: false),
+                Guid.NewGuid().ToByteArray().ToHex(prefix: false),
+                "1");
+
+            var postalAddress = new PostalAddress(
+                "TestingStreet",
+                61,
+                "Test Address Line",
+                "410000",
+                "TownN",
+                Country.List["DE"]
+            );
+            var placeOfBirth = new PlaceOfBirth(DateTime.UtcNow, "TownN", Country.List["DE"]);
+            var vaspInformation = new VaspInformation(
+                "Test test",
+                vaspKey.GetPublicAddress(),
+                vaspKey.GetPubKey().ToHex(prefix: false),
+                postalAddress,
+                placeOfBirth,
+                new NaturalPersonId[]
+                {
+                    new NaturalPersonId("SomeId2", NaturalIdentificationType.AlienRegistrationNumber,
+                        Country.List["DE"]),
+                },
+                new JuridicalPersonId[]
+                {
+                    new JuridicalPersonId("SomeId1", JuridicalIdentificationType.BankPartyIdentification,
+                        Country.List["DE"]),
+                },
+                "DEUTDEFF");
+
+            var originator = new Originator("Originator1", "VaaN", postalAddress, placeOfBirth,
+                new NaturalPersonId[]
+                {
+                    new NaturalPersonId("SomeId2", NaturalIdentificationType.AlienRegistrationNumber,
+                        Country.List["DE"]),
+                },
+                new JuridicalPersonId[]
+                {
+                    new JuridicalPersonId("SomeId1", JuridicalIdentificationType.BankPartyIdentification,
+                        Country.List["DE"]),
+                },
+                "DEUTDEFF");
+
+            var beneficiary = new Beneficiary("Ben1", "VaaN");
+
+            var transferReply = new TransferReply(VirtualAssetType.ETH, TransferType.BlockchainTransfer, "10000000", "0x0000001");
+
+            var request = new TransferReplyMessage(message, originator, beneficiary, transferReply, vaspInformation)
+            {
+                MessageEnvelope = new MessageEnvelope()
+                {
+                    EncryptionType = EncryptionType.Assymetric,
+                    EncryptionKey = "123",
+                    Topic = topic,
+                    Signature = "123"
+                },
+                Comment = "This is test message",
+            };
+
+            return request;
+        }
+
+        private static TransferDispatchMessage GetTransferDispatchMessage()
+        {
+            //Should be a contract
+            var vaspKey = EthECKey.GenerateKey();
+
+            //4Bytes 
+            var topic = "0x12345678"; //"0x" + "My Topic".GetHashCode().ToString("x");
+
+            var message = new Message(
+                Guid.NewGuid().ToByteArray().ToHex(prefix: false),
+                Guid.NewGuid().ToByteArray().ToHex(prefix: false),
+                "1");
+
+            var postalAddress = new PostalAddress(
+                "TestingStreet",
+                61,
+                "Test Address Line",
+                "410000",
+                "TownN",
+                Country.List["DE"]
+            );
+            var placeOfBirth = new PlaceOfBirth(DateTime.UtcNow, "TownN", Country.List["DE"]);
+            var vaspInformation = new VaspInformation(
+                "Test test",
+                vaspKey.GetPublicAddress(),
+                vaspKey.GetPubKey().ToHex(prefix: false),
+                postalAddress,
+                placeOfBirth,
+                new NaturalPersonId[]
+                {
+                    new NaturalPersonId("SomeId2", NaturalIdentificationType.AlienRegistrationNumber,
+                        Country.List["DE"]),
+                },
+                new JuridicalPersonId[]
+                {
+                    new JuridicalPersonId("SomeId1", JuridicalIdentificationType.BankPartyIdentification,
+                        Country.List["DE"]),
+                },
+                "DEUTDEFF");
+
+            var originator = new Originator("Originator1", "VaaN", postalAddress, placeOfBirth,
+                new NaturalPersonId[]
+                {
+                    new NaturalPersonId("SomeId2", NaturalIdentificationType.AlienRegistrationNumber,
+                        Country.List["DE"]),
+                },
+                new JuridicalPersonId[]
+                {
+                    new JuridicalPersonId("SomeId1", JuridicalIdentificationType.BankPartyIdentification,
+                        Country.List["DE"]),
+                },
+                "DEUTDEFF");
+
+            var beneficiary = new Beneficiary("Ben1", "VaaN");
+
+            var transferReply = new TransferReply(VirtualAssetType.ETH, TransferType.BlockchainTransfer, "10000000", "0x0000001");
+            var transaction = new Transaction("txId", DateTime.UtcNow, "0x0000002");
+
+            var request = new TransferDispatchMessage(message, originator, beneficiary, transferReply, transaction, vaspInformation)
+            {
+                MessageEnvelope = new MessageEnvelope()
+                {
+                    EncryptionType = EncryptionType.Assymetric,
+                    EncryptionKey = "123",
+                    Topic = topic,
+                    Signature = "123"
+                },
+                Comment = "This is test message",
+            };
+
+            return request;
+        }
+
+        private static TransferConfirmationMessage GetTransferConfirmationMessage()
+        {
+            //Should be a contract
+            var vaspKey = EthECKey.GenerateKey();
+
+            //4Bytes 
+            var topic = "0x12345678"; //"0x" + "My Topic".GetHashCode().ToString("x");
+
+            var message = new Message(
+                Guid.NewGuid().ToByteArray().ToHex(prefix: false),
+                Guid.NewGuid().ToByteArray().ToHex(prefix: false),
+                "1");
+
+            var postalAddress = new PostalAddress(
+                "TestingStreet",
+                61,
+                "Test Address Line",
+                "410000",
+                "TownN",
+                Country.List["DE"]
+            );
+            var placeOfBirth = new PlaceOfBirth(DateTime.UtcNow, "TownN", Country.List["DE"]);
+            var vaspInformation = new VaspInformation(
+                "Test test",
+                vaspKey.GetPublicAddress(),
+                vaspKey.GetPubKey().ToHex(prefix: false),
+                postalAddress,
+                placeOfBirth,
+                new NaturalPersonId[]
+                {
+                    new NaturalPersonId("SomeId2", NaturalIdentificationType.AlienRegistrationNumber,
+                        Country.List["DE"]),
+                },
+                new JuridicalPersonId[]
+                {
+                    new JuridicalPersonId("SomeId1", JuridicalIdentificationType.BankPartyIdentification,
+                        Country.List["DE"]),
+                },
+                "DEUTDEFF");
+
+            var originator = new Originator("Originator1", "VaaN", postalAddress, placeOfBirth,
+                new NaturalPersonId[]
+                {
+                    new NaturalPersonId("SomeId2", NaturalIdentificationType.AlienRegistrationNumber,
+                        Country.List["DE"]),
+                },
+                new JuridicalPersonId[]
+                {
+                    new JuridicalPersonId("SomeId1", JuridicalIdentificationType.BankPartyIdentification,
+                        Country.List["DE"]),
+                },
+                "DEUTDEFF");
+
+            var beneficiary = new Beneficiary("Ben1", "VaaN");
+
+            var transferReply = new TransferReply(VirtualAssetType.ETH, TransferType.BlockchainTransfer, "10000000", "0x0000001");
+            var transaction = new Transaction("txId", DateTime.UtcNow, "0x0000002");
+
+            var request = new TransferConfirmationMessage(message, originator, beneficiary, transferReply, transaction, vaspInformation)
+            {
+                MessageEnvelope = new MessageEnvelope()
+                {
+                    EncryptionType = EncryptionType.Assymetric,
+                    EncryptionKey = "123",
+                    Topic = topic,
+                    Signature = "123"
+                },
+                Comment = "This is test message",
+            };
+
+            return request;
+        }
+
+        private static TerminationMessage GetTerminationMessage()
+        {
+            //Should be a contract
+            var vaspKey = EthECKey.GenerateKey();
+
+            //4Bytes 
+            var topic = "0x12345678"; //"0x" + "My Topic".GetHashCode().ToString("x");
+
+            var message = new Message(
+                Guid.NewGuid().ToByteArray().ToHex(prefix: false),
+                Guid.NewGuid().ToByteArray().ToHex(prefix: false),
+                "1");
+            var postalAddress = new PostalAddress(
+                "TestingStreet",
+                61,
+                "Test Address Line",
+                "410000",
+                "TownN",
+                Country.List["DE"]
+            );
+            var placeOfBirth = new PlaceOfBirth(DateTime.UtcNow, "TownN", Country.List["DE"]);
+            var vaspInformation = new VaspInformation(
+                "Test test",
+                vaspKey.GetPublicAddress(),
+                vaspKey.GetPubKey().ToHex(prefix: false),
+                postalAddress,
+                placeOfBirth,
+                new NaturalPersonId[]
+                {
+                    new NaturalPersonId("SomeId2", NaturalIdentificationType.AlienRegistrationNumber,
+                        Country.List["DE"]),
+                },
+                new JuridicalPersonId[]
+                {
+                    new JuridicalPersonId("SomeId1", JuridicalIdentificationType.BankPartyIdentification,
+                        Country.List["DE"]),
+                },
+                "DEUTDEFF");
+
+            var request = new TerminationMessage(message, vaspInformation)
+            {
+                MessageEnvelope = new MessageEnvelope()
+                {
+                    EncryptionType = EncryptionType.Assymetric,
+                    EncryptionKey = "123",
+                    Topic = topic,
+                    Signature = "123"
+                },
+                Comment = "This is test message",
+            };
             return request;
         }
     }

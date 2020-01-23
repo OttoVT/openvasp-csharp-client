@@ -37,9 +37,9 @@ namespace OpenVASP.Messaging.MessagingEngine
         }
     }
 
-    public class TransferDispatchMessageMessageHandler : GenericMessageHandler<TransferDispatchMessage>
+    public class TransferDispatchMessageHandler : GenericMessageHandler<TransferDispatchMessage>
     {
-        public TransferDispatchMessageMessageHandler(Func<TransferDispatchMessage, CancellationToken, Task> processFunc) :
+        public TransferDispatchMessageHandler(Func<TransferDispatchMessage, CancellationToken, Task> processFunc) :
             base(processFunc)
         {
         }

@@ -197,7 +197,8 @@ namespace OpenVASP.Whisper.Mappers
             var proto = new ProtoTransaction()
             {
                 SendingAddress = messageTransaction.SendingAddress,
-                TransactionDatetime = messageTransaction.DateTime.ToString("yyyy-MM-ddTHH:mm:ssz", CultureInfo.InvariantCulture),
+                TransactionDatetime = messageTransaction.DateTime.ToUniversalTime()
+                    .ToString("yyyy-MM-ddTHH:mm:ssZ", CultureInfo.InvariantCulture),
                 TransactionId = messageTransaction.TransactionId
             };
 
@@ -354,9 +355,11 @@ namespace OpenVASP.Whisper.Mappers
             if (messageTransaction == null)
                 return null;
 
-            DateTime.TryParseExact(messageTransaction.TransactionDatetime, "yyyy-MM-ddTHH:mm:ssz",
-                CultureInfo.InvariantCulture, DateTimeStyles.None, out var dateTime);
-            
+            DateTime.TryParseExact(messageTransaction.TransactionDatetime, "yyyy-MM-ddTHH:mm:ssZ",
+                CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var dateTime);
+
+            dateTime = dateTime.ToUniversalTime();
+
             var obj = new Transaction(messageTransaction.TransactionId, dateTime, messageTransaction.SendingAddress);
 
             return obj;
