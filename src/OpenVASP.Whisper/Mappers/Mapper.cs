@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Linq;
 using OpenVASP.Messaging.Messages;
+using OpenVASP.Messaging.Messages.Entities;
 using OpenVASP.ProtocolMessages.Messages;
 
 namespace OpenVASP.Whisper.Mappers
@@ -188,6 +189,21 @@ namespace OpenVASP.Whisper.Mappers
             return proto;
         }
 
+        public static ProtoTransaction MapTranactionToProto(Transaction messageTransaction)
+        {
+            if (messageTransaction == null)
+                return null;
+
+            var proto = new ProtoTransaction()
+            {
+                SendingAddress = messageTransaction.SendingAddress,
+                TransactionDatetime = messageTransaction.DateTime.ToString("yyyy-MM-ddTHH:mm:ssz", CultureInfo.InvariantCulture),
+                TransactionId = messageTransaction.TransactionId
+            };
+
+            return proto;
+        }
+
         #endregion
 
         #region FROM_PROTO
@@ -329,6 +345,19 @@ namespace OpenVASP.Whisper.Mappers
                 (TransferType)messageTransfer.TransferType, 
                 messageTransfer.Amount,
                 messageTransfer.DestinationAddress);
+
+            return obj;
+        }
+
+        public static Transaction MapTranactionFromProto(ProtoTransaction messageTransaction)
+        {
+            if (messageTransaction == null)
+                return null;
+
+            DateTime.TryParseExact(messageTransaction.TransactionDatetime, "yyyy-MM-ddTHH:mm:ssz",
+                CultureInfo.InvariantCulture, DateTimeStyles.None, out var dateTime);
+            
+            var obj = new Transaction(messageTransaction.TransactionId, dateTime, messageTransaction.SendingAddress);
 
             return obj;
         }

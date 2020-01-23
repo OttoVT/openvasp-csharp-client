@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Text;
-
-namespace OpenVASP.Messaging.Messages
+﻿namespace OpenVASP.Messaging.Messages.Entities
 {
     public enum JuridicalIdentificationType
     {

@@ -2,20 +2,22 @@
 
 namespace OpenVASP.Messaging.Messages
 {
-    public class TransferReplyMessage : MessageBase
+    public class TransferDispatchMessage : MessageBase
     {
-        public TransferReplyMessage(
+        public TransferDispatchMessage(
             Message message,
             Originator originator,
             Beneficiary beneficiary,
             TransferReply transfer,
+            Transaction transaction,
             VaspInformation vasp)
         {
-            MessageType = MessageType.TransferReply;
+            MessageType = MessageType.TransferDispatch;
             Message = message;
             Originator = originator;
             Beneficiary = beneficiary;
             Transfer = transfer;
+            Transaction = transaction;
             VASP = vasp;
         }
 
@@ -25,23 +27,10 @@ namespace OpenVASP.Messaging.Messages
 
         public TransferReply Transfer { get; private set; }
 
+        public Transaction Transaction { get; private set; }
+
         public Message Message { get; private set; }
 
         public VaspInformation VASP { get; private set; }
-
-        public static string GetMessageCode(TransferReplyMessageCode messageCode)
-        {
-            return messageCode.ToString();
-        }
-        public enum TransferReplyMessageCode
-        {
-            TransferAccepted = 1,
-            TransferDeclinedRequestNotValid = 2,
-            TransferDeclinedNoSuchBeneficiary = 3,
-            TransferDeclinedVirtualAssetNotSupported = 4,
-            TransferDeclinedTransferNotAuthorized = 5,
-            TransferDeclinedTemporaryDisruptionOfService = 6,
-        }
-
     }
 }

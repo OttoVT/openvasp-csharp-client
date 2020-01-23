@@ -1,4 +1,5 @@
 ﻿using OpenVASP.Messaging.Messages;
+using OpenVASP.Messaging.Messages.Entities;
 using OpenVASP.ProtocolMessages.Messages;
 
 namespace OpenVASP.Whisper.Mappers

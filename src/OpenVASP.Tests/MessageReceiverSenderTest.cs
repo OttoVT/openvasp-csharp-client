@@ -8,6 +8,7 @@ using Nethereum.Signer;
 using Nethereum.Web3;
 using OpenVASP.Messaging;
 using OpenVASP.Messaging.Messages;
+using OpenVASP.Messaging.Messages.Entities;
 using OpenVASP.Whisper;
 using Xunit;
 

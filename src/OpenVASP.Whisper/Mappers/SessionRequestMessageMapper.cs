@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Linq;
 using OpenVASP.Messaging.Messages;
+using OpenVASP.Messaging.Messages.Entities;
 using OpenVASP.ProtocolMessages.Messages;
 
 namespace OpenVASP.Whisper.Mappers

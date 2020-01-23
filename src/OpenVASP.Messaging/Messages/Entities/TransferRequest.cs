@@ -1,20 +1,16 @@
-﻿namespace OpenVASP.Messaging.Messages
+﻿namespace OpenVASP.Messaging.Messages.Entities
 {
-    public class TransferReply
+    public class TransferRequest
     {
-        public TransferReply(
+        public TransferRequest(
             VirtualAssetType virtualAssetType,
             TransferType transferType, 
-            string amount,
-            string destinationAddress)
+            string amount)
         {
             VirtualAssetType = virtualAssetType;
             TransferType = transferType;
             Amount = amount;
-            DestinationAddress = destinationAddress;
         }
-
-        public string DestinationAddress { get; private set; }
 
         public VirtualAssetType VirtualAssetType { get; private set; }
 
@@ -22,5 +18,16 @@
 
         //ChooseType as BigInteger
         public string Amount { get; private set; }
+    }
+
+    public enum VirtualAssetType
+    {
+        BTC = 1,
+        ETH = 2
+    }
+
+    public enum TransferType
+    {
+        BlockchainTransfer = 1,
     }
 }

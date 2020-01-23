@@ -1,4 +1,4 @@
-﻿namespace OpenVASP.Messaging
+﻿namespace OpenVASP.Messaging.Messages.Entities
 {
     public enum EncryptionType
     {

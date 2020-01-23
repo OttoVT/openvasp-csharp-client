@@ -10,6 +10,7 @@ using OpenVASP.Whisper;
 using Xunit;
 using System.Security.Cryptography;
 using Nethereum.Signer;
+using OpenVASP.Messaging.Messages.Entities;
 using OpenVASP.ProtocolMessages.Messages;
 
 namespace OpenVASP.Tests

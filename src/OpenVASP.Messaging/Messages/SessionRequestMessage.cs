@@ -1,4 +1,6 @@
-﻿namespace OpenVASP.Messaging.Messages
+﻿using OpenVASP.Messaging.Messages.Entities;
+
+namespace OpenVASP.Messaging.Messages
 {
     public class SessionRequestMessage : MessageBase
     {

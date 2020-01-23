@@ -7,6 +7,7 @@ using Nethereum.RPC.Shh.DTOs;
 using Nethereum.Web3;
 using OpenVASP.Messaging;
 using OpenVASP.Messaging.Messages;
+using OpenVASP.Messaging.Messages.Entities;
 
 namespace OpenVASP.Whisper
 {

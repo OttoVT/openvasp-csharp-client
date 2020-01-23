@@ -1,4 +1,6 @@
-﻿namespace OpenVASP.Messaging
+﻿using OpenVASP.Messaging.Messages.Entities;
+
+namespace OpenVASP.Messaging
 {
     public class MessageEnvelope
     {

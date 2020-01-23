@@ -1,4 +1,4 @@
-﻿namespace OpenVASP.Messaging.Messages
+﻿namespace OpenVASP.Messaging.Messages.Entities
 {
     public class PostalAddress
     {
