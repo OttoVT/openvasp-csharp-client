@@ -76,6 +76,13 @@ namespace OpenVASP.Whisper
                         break;
                     }
 
+                case ProtoMessageWrapper.MsgOneofCase.TransferRequestMessage:
+                {
+                    message = TransferRequestMessageMapper.MapFromProto(wrapper.TransferRequestMessage);
+
+                    break;
+                }
+
                 default:
                     break;
             }

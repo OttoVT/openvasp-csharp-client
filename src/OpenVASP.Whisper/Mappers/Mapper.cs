@@ -114,6 +114,64 @@ namespace OpenVASP.Whisper.Mappers
             return proto;
         }
 
+        public static ProtoTransfer MapTransferToProto(TransferRequest messageTransfer)
+        {
+            if (messageTransfer == null)
+                return null;
+
+            var proto = new ProtoTransfer()
+            {
+                Amount = messageTransfer.Amount,
+                TransferType = (int)messageTransfer.TransferType,
+                VirtualAssetName = messageTransfer.VirtualAssetType.ToString()
+            };
+
+            return proto;
+        }
+
+        public static ProtoBeneficiary MapBeneficiaryToProto(Beneficiary messageBeneficiary)
+        {
+            if (messageBeneficiary == null)
+                return null;
+
+            var proto = new ProtoBeneficiary()
+            {
+                Name = messageBeneficiary.Name,
+                Vaan = messageBeneficiary.VAAN,
+            };
+
+            return proto;
+        }
+
+        public static ProtoOriginator MapOriginatorToProto(Originator messageOriginator)
+        {
+            if (messageOriginator == null)
+                return null;
+
+            var proto = new ProtoOriginator()
+            {
+                Name = messageOriginator.Name,
+                Vaan = messageOriginator.VAAN,
+                Bic = messageOriginator.BIC,
+                PlaceOfBirth = MapPlaceOfBirthToProto(messageOriginator.PlaceOfBirth),
+                PostalAddress = MapPostalAddressToProto(messageOriginator.PostalAddress)
+            };
+
+            if (messageOriginator.JuridicalPersonId != null &&
+                messageOriginator.JuridicalPersonId.Any())
+            {
+                proto.JuridicalPersonId.AddRange(messageOriginator.JuridicalPersonId.Select(x => MapJuridicalPersonIdToProto(x)));
+            }
+
+            if (messageOriginator.NaturalPersonId != null &&
+                messageOriginator.NaturalPersonId.Any())
+            {
+                proto.NaturalPersonId.AddRange(messageOriginator.NaturalPersonId.Select(x => MapNaturalPersonIdToProto(x)));
+            }
+
+            return proto;
+        }
+
         #endregion
 
         #region FROM_PROTO
@@ -143,7 +201,7 @@ namespace OpenVASP.Whisper.Mappers
             Country.List.TryGetValue(naturalPersonId.IssuingCountry, out var country);
             var proto = new NaturalPersonId(
                 naturalPersonId.Identifier,
-                (NaturalIdentificationType) naturalPersonId.IdentificationType,
+                (NaturalIdentificationType)naturalPersonId.IdentificationType,
                 country,
                 naturalPersonId.NonstateIssuer);
 
@@ -159,8 +217,8 @@ namespace OpenVASP.Whisper.Mappers
 
             Country.List.TryGetValue(juridicalPersonId.IssuingCountry, out var country);
             var proto = new JuridicalPersonId(
-                juridicalPersonId.Identifier, 
-                (JuridicalIdentificationType)juridicalPersonId.IdentificationType, 
+                juridicalPersonId.Identifier,
+                (JuridicalIdentificationType)juridicalPersonId.IdentificationType,
                 country,
                 juridicalPersonId.NonstateIssuer);
 
@@ -201,6 +259,49 @@ namespace OpenVASP.Whisper.Mappers
             return proto;
         }
 
+        public static Originator MapOriginatorFromProto(ProtoOriginator messageOriginator)
+        {
+            if (messageOriginator == null)
+                return null;
+
+            var obj = new Originator(
+                messageOriginator.Name,
+                messageOriginator.Vaan,
+                MapPostalAddressFromProto(messageOriginator.PostalAddress),
+                MapPlaceOfBirthFromProto(messageOriginator.PlaceOfBirth),
+                messageOriginator.NaturalPersonId?.Select(x => MapNaturalPersonIdFromProto(x))?.ToArray(),
+                messageOriginator.JuridicalPersonId?.Select(x => MapJuridicalPersonIdFromProto(x))?.ToArray(),
+                messageOriginator.Bic
+            );
+
+            return obj;
+        }
+
+        public static Beneficiary MapBeneficiaryFromProto(ProtoBeneficiary messageBeneficiary)
+        {
+            if (messageBeneficiary == null)
+                return null;
+
+            var obj = new Beneficiary(
+                messageBeneficiary.Name,
+                messageBeneficiary.Vaan);
+
+            return obj;
+        }
+
+        public static TransferRequest MapTransferFromProto(ProtoTransfer messageTransfer)
+        {
+            if (messageTransfer == null)
+                return null;
+
+            Enum.TryParse(messageTransfer.VirtualAssetName, out VirtualAssetType assetType);
+
+            var obj = new TransferRequest(assetType, (TransferType)messageTransfer.TransferType, messageTransfer.Amount);
+
+            return obj;
+        }
+
         #endregion
+
     }
 }

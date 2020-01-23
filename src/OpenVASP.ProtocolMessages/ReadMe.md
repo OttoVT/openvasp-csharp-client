@@ -3,5 +3,5 @@
 Call protoc with listing all related proto contracts. 
 
 ```
-protoc -I="D:\OpenVaspRepo\OpenVasp-CsharpClient\src\OpenVASP.ProtocolMessages\proto" --csharp_out="D:\OpenVaspRepo\OpenVasp-CsharpClient\src\OpenVASP.ProtocolMessages\Messages" ProtoJuridicalPersonId.proto ProtoNaturalPersonId.proto ProtoPlaceOfBirth.proto ProtoPostalAddress.proto ProtoMessage.proto ProtoSessionRequestMessage.proto ProtoVaspInfo.proto ProtoMessageWrapper.proto ProtoSessionReplyMessage.proto
+protoc -I="D:\OpenVaspRepo\OpenVasp-CsharpClient\src\OpenVASP.ProtocolMessages\proto" --csharp_out="D:\OpenVaspRepo\OpenVasp-CsharpClient\src\OpenVASP.ProtocolMessages\Messages" ProtoJuridicalPersonId.proto ProtoNaturalPersonId.proto ProtoPlaceOfBirth.proto ProtoPostalAddress.proto ProtoMessage.proto ProtoSessionRequestMessage.proto ProtoVaspInfo.proto ProtoMessageWrapper.proto ProtoSessionReplyMessage.proto ProtoBeneficiary.proto ProtoTransfer.proto ProtoOriginator.proto ProtoTransferRequestMessage.proto
 ```

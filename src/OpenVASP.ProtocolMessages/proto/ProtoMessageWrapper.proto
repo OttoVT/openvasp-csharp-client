@@ -5,12 +5,14 @@ option csharp_namespace = "OpenVASP.ProtocolMessages.Messages";
 package protobuf_openvasp;
 import "ProtoSessionRequestMessage.proto";
 import "ProtoSessionReplyMessage.proto";
+import "ProtoTransferRequestMessage.proto";
 
 message ProtoMessageWrapper {
 
   oneof msg {
     ProtoSessionRequestMessage session_request_message = 1;
     ProtoSessionReplyMessage session_reply_message = 2;
+    ProtoTransferRequestMessage transfer_request_message = 3;
     int32 reserved_field =999;
   }
 }
