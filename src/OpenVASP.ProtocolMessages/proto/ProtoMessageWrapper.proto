@@ -8,6 +8,7 @@ import "ProtoSessionReplyMessage.proto";
 import "ProtoTransferRequestMessage.proto";
 import "ProtoTransferReplyMessage.proto";
 import "ProtoTransferDispatchMessage.proto";
+import "ProtoTransferConfirmationMessage.proto";
 
 message ProtoMessageWrapper {
 
@@ -17,6 +18,7 @@ message ProtoMessageWrapper {
     ProtoTransferRequestMessage transfer_request_message = 3;
     ProtoTransferReplyMessage transfer_reply_message = 4;
     ProtoTransferDispatchMessage transfer_dispatch_message = 5;
+    ProtoTransferConfirmationMessage transafer_confirmation_message = 6;
 
     int32 reserved_field =999;
   }

@@ -2,20 +2,22 @@
 
 namespace OpenVASP.Messaging.Messages
 {
-    public class TransferReplyMessage : MessageBase
+    public class TransferConfirmationMessage : MessageBase
     {
-        public TransferReplyMessage(
+        public TransferConfirmationMessage(
             Message message,
             Originator originator,
             Beneficiary beneficiary,
             TransferReply transfer,
+            Transaction transaction,
             VaspInformation vasp)
         {
-            MessageType = MessageType.TransferReply;
+            MessageType = MessageType.TransferDispatch;
             Message = message;
             Originator = originator;
             Beneficiary = beneficiary;
             Transfer = transfer;
+            Transaction = transaction;
             VASP = vasp;
         }
 
@@ -25,22 +27,24 @@ namespace OpenVASP.Messaging.Messages
 
         public TransferReply Transfer { get; private set; }
 
+        public Transaction Transaction { get; private set; }
+
         public Message Message { get; private set; }
 
         public VaspInformation VASP { get; private set; }
 
-        public static string GetMessageCode(TransferReplyMessageCode messageCode)
+        public static string GetMessageCode(TransferConfirmationMessageCode messageCode)
         {
             return messageCode.ToString();
         }
-        public enum TransferReplyMessageCode
+        public enum TransferConfirmationMessageCode
         {
-            TransferAccepted = 1,
-            TransferDeclinedRequestNotValid = 2,
-            TransferDeclinedNoSuchBeneficiary = 3,
-            TransferDeclinedVirtualAssetNotSupported = 4,
-            TransferDeclinedTransferNotAuthorized = 5,
-            TransferDeclinedTemporaryDisruptionOfService = 6,
+            TransferConfirmed = 1,
+            TransferNotConfirmedDispatchNotValid = 2,
+            TransferNotConfirmedAssetsNotReceived = 3,
+            TransferNotConfirmedWrongAmount = 4,
+            TransferNotConfirmedWrongAsset = 5,
+            TransferNotConfirmedTransactionDataMissmatch = 6,
         }
     }
 }

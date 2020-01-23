@@ -69,6 +69,14 @@ namespace OpenVASP.Whisper
                     break;
                 }
 
+                case MessageType.TransferConfirmation:
+                {
+                    var proto = TransferConfirmationMessageMapper.MapToProto((TransferConfirmationMessage)messageBase);
+                    wrapper.TransaferConfirmationMessage = proto;
+
+                    break;
+                }
+
                 default:
                     throw new ArgumentException($"Message of type {messageBase.GetType()} contains enum message type {messageBase.MessageType}" +
                                                 $"which is not supported");
@@ -117,6 +125,13 @@ namespace OpenVASP.Whisper
                 case ProtoMessageWrapper.MsgOneofCase.TransferDispatchMessage:
                 {
                     message = TransferDispatchMessageMapper.MapFromProto(wrapper.TransferDispatchMessage);
+
+                    break;
+                }
+
+                case ProtoMessageWrapper.MsgOneofCase.TransaferConfirmationMessage:
+                {
+                    message = TransferConfirmationMessageMapper.MapFromProto(wrapper.TransaferConfirmationMessage);
 
                     break;
                 }
