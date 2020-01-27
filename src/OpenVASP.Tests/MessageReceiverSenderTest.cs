@@ -35,6 +35,7 @@ namespace OpenVASP.Tests
                     })));
             var messageReceiver = new MessageReceiver(new WhisperMessageFormatter(), whisperClient, messageHandlerResolver);
             //Should be a contract
+
             var vaspKey = EthECKey.GenerateKey();
             var kId = await web3.Shh.KeyPair.NewKeyPair.SendRequestAsync();
 
@@ -56,10 +57,6 @@ namespace OpenVASP.Tests
                 ecdhPubKey = byteArray.ToHex(prefix: false);
             }
 
-            var message = new Message(
-                Guid.NewGuid().ToByteArray().ToHex(prefix: false),
-                Guid.NewGuid().ToByteArray().ToHex(prefix: false),
-                "1");
             var handshake = new HandShakeRequest(topic, ecdhPubKey);
             var postalAddress = new PostalAddress(
                 "TestingStreet",
@@ -88,7 +85,8 @@ namespace OpenVASP.Tests
                 },
                 "DEUTDEFF");
 
-            var request = new SessionRequestMessage(message, handshake, vaspInformation)
+            var request = new SessionRequestMessage(Guid.NewGuid().ToByteArray().ToHex(prefix: false), handshake, vaspInformation,
+            Guid.NewGuid().ToByteArray().ToHex(prefix: false))
             {
                 MessageEnvelope = new MessageEnvelope()
                 {

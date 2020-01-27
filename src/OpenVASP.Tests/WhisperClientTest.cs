@@ -79,7 +79,8 @@ namespace OpenVASP.Tests
                 },
                 "DEUTDEFF");
 
-            var request = new SessionRequestMessage(message, handshake, vaspInformation)
+            var request = new SessionRequestMessage(Guid.NewGuid().ToByteArray().ToHex(prefix: false)
+                , handshake, vaspInformation, Guid.NewGuid().ToByteArray().ToHex(prefix: false))
             {
                 MessageEnvelope = new MessageEnvelope()
                 {

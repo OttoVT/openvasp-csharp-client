@@ -30,14 +30,10 @@ namespace OpenVASP.Whisper.Mappers
 
         public static SessionRequestMessage MapFromProto(ProtoSessionRequestMessage message)
         {
-            var messageIn = new Message(
-                message.Message.MessageId,
-                message.Message.SessionId,
-                message.Message.MessageCode);
             var handshake = new HandShakeRequest(message.TopicA, message.EcdshPubKey);
             var vasp = Mapper.MapVaspInformationFromProto(message.VaspInfo);
 
-            var proto = new SessionRequestMessage(messageIn, handshake, vasp)
+            var proto = new SessionRequestMessage(message.Message.SessionId, handshake, vasp, message.Message.MessageId)
             {
                 Comment = message.Comment,
             };

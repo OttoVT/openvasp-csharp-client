@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Google.Protobuf;
-using Nethereum.Hex.HexConvertors.Extensions;
 using Nethereum.RPC.Shh.DTOs;
 using Nethereum.Web3;
 using OpenVASP.Messaging;
-using OpenVASP.Messaging.Messages;
 using OpenVASP.Messaging.Messages.Entities;
 
 namespace OpenVASP.Whisper
@@ -20,7 +17,7 @@ namespace OpenVASP.Whisper
             this.web3 = new Web3(gethUrl);
         }
 
-        public async Task<string> SendMessageAsync(MessageEnvelope messageEnvelope, string payload)
+        public async Task<string> SendMessageAsync<T>(MessageEnvelope<T> messageEnvelope)
         {
             var messageInput = new MessageInput()
             {
