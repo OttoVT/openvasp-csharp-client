@@ -15,7 +15,7 @@ namespace OpenVASP.Whisper.Mappers
             var proto = new ProtoSessionRequestMessage()
             {
                 Comment = message.Comment,
-                EcdshPubKey = message.HandShake.ECDHPublicKey,
+                EcdshPubKey = message.HandShake.AesGsmSharedKey,
                 Message = Mapper.MapMessageToProto(message.MessageType, message.Message),
                 TopicA = message.HandShake.TopicA,
                 VaspInfo = Mapper.MapVaspInformationToProto(message.VASP)

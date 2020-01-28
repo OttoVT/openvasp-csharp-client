@@ -345,7 +345,7 @@ namespace OpenVASP.Tests
             Assert.Equal(request.MessageEnvelope.EncryptionKey, response.MessageEnvelope.EncryptionKey);
 
             Assert.Equal(request.HandShake.TopicA, response.HandShake.TopicA);
-            Assert.Equal(request.HandShake.ECDHPublicKey, response.HandShake.ECDHPublicKey);
+            Assert.Equal(request.HandShake.AesGsmSharedKey, response.HandShake.AesGsmSharedKey);
 
             Assert.Equal(request.Comment, response.Comment);
 
