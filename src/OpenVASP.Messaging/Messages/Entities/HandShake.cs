@@ -4,12 +4,12 @@
     {
         public string TopicA { get; private set; }
 
-        public string AesGsmSharedKey { get; private set; }
+        public string EcdhPubKey { get; private set; }
 
         public HandShakeRequest(string topicA, string ecdhPubKey)
         {
             TopicA = topicA;
-            AesGsmSharedKey = ecdhPubKey;
+            EcdhPubKey = ecdhPubKey;
         }
     }
 

@@ -16,13 +16,35 @@ using Xunit.Abstractions;
 
 namespace OpenVASP.Tests
 {
-    public class GethWhisperFlowTest
+    public class WhisperFixture : IDisposable
     {
-        private readonly ITestOutputHelper testOutputHelper;
-
-        public GethWhisperFlowTest(ITestOutputHelper testOutputHelper)
+        public WhisperFixture()
         {
-            this.testOutputHelper = testOutputHelper;
+            string gethUrl = "http://144.76.25.187:8025";
+            this.Web3 = new Web3(gethUrl);
+            this.WhisperMessageFormatter = new WhisperMessageFormatter();
+            this.Signer = new EthereumMessageSigner();
+        }
+
+        public EthereumMessageSigner Signer { get; }
+
+        public WhisperMessageFormatter WhisperMessageFormatter { get; }
+
+        public Web3 Web3 { get; }
+
+        public void Dispose()
+        {
+        }
+    }
+    public class GethWhisperFlowTest : IClassFixture<WhisperFixture>
+    {
+        private readonly ITestOutputHelper _testOutputHelper;
+        private readonly WhisperFixture _whisperFixture;
+
+        public GethWhisperFlowTest(WhisperFixture whisperFixture, ITestOutputHelper testOutputHelper)
+        {
+            this._whisperFixture = whisperFixture;
+            this._testOutputHelper = testOutputHelper;
         }
 
         //This test proves that whisper works correctly for geth
@@ -149,7 +171,7 @@ namespace OpenVASP.Tests
                 await Task.Delay(2000);
             }
 
-            testOutputHelper.WriteLine($"{Newtonsoft.Json.JsonConvert.SerializeObject(shhMessage, Formatting.Indented)}");
+            _testOutputHelper.WriteLine($"{Newtonsoft.Json.JsonConvert.SerializeObject(shhMessage, Formatting.Indented)}");
 
             var messageHash1 = await web3.Shh.Post.SendRequestAsync(new MessageInput()
             {
@@ -176,7 +198,7 @@ namespace OpenVASP.Tests
                 await Task.Delay(2000);
             }
 
-            testOutputHelper.WriteLine($"{Newtonsoft.Json.JsonConvert.SerializeObject(shhMessage, Formatting.Indented)}");
+            _testOutputHelper.WriteLine($"{Newtonsoft.Json.JsonConvert.SerializeObject(shhMessage, Formatting.Indented)}");
             //Assert.NotNull(message);
             //Assert.Equal(payload, message.Payload);
             //Assert.Equal(senderTopic, message.Topic);
@@ -187,75 +209,379 @@ namespace OpenVASP.Tests
             //Assert.Null(message.Sig);
         }
 
+        //TODO: SPlit in originator and beneficiary sides
         [Fact]
         public async Task WhisperSessionCreationTestAsync()
         {
-            var geth = "";
-            var web3 = new Web3(geth);
-            var whisperClient = new WhisperClient(geth);
+            //var geth = "";
+            //var web3 = new Web3(geth);
+            //var whisperClient = new WhisperClient(geth);
+            //var whisperMessageFormatter = new WhisperMessageFormatter();
 
-            VaspInformation originatorVaspInfo = GenerateOriginatorVaspInfo();
-            VaspInformation beneficiaryVaspInfo = GenerateBeneficiaryVaspInfo();
+            //OriginatorSide
+            (string originatorSigningPubKey, string originatorSigningPrivateKey, string originatorSigningPrivateKeyId) =
+                await GenerateSigningKey();
+
+            //BeneficiarySide
+            (string beneficiarySigningPubKey, string beneficiarySigningPrivateKey,
+                string beneficiarySigningPrivateKeyId) = await GenerateSigningKey();
+
+            //BeneficiarySide
+            (string beneficiaryVaspCode,
+                string beneficiaryHandshakePubKey,
+                string beneficiaryHandshakeKeyId,
+                string beneficiaryTopicFilter) = await CreateBeneficiaryGenericTopic();
+
+            //OriginatorSide
+            //(string beneficiaryVaspCode, string beneficiaryVaspPubKey ) = await GetVaspFromIdentityAsync(beneficiaryIdentity);
+
+            //BeneficiarySide
+            //(string originatorVaspCode, string originatorVaspPubKey) = await GetVaspFromIdentityAsync(originatorIdentity);
+
+            //OriginatorSide
+            (string originatorSessionTopic,
+                string sharedKey,
+                string sharedKeyId,
+                string originatorSessionTopicFilter) = await CreateOriginatorSessionTopic(beneficiarySigningPubKey);
+
+            //OriginatorSide
             string sessionId = GenerateSessionId();
+            VaspInformation originatorVaspInfo = GenerateOriginatorVaspInfo("0x..." + originatorSessionTopic, originatorSigningPubKey);
 
-            (string originatorSigningPubKey, string originatorSigningPrivateKey) = await GenerateSigningKey();
-            (string beneficiarySigningPubKey, string beneficiarySigningPrivateKey) = await GenerateSigningKey();
+            //BeneficiarySide
+            VaspInformation beneficiaryVaspInfo = GenerateBeneficiaryVaspInfo("0x..." + beneficiaryVaspCode, beneficiarySigningPubKey);
 
-            (string beneficiaryVaspCode, 
-             string beneficiaryHandshakePubKey, 
-             string beneficiaryHandshakeKeyId,
-             string beneficiaryTopicFilter) = await CreateBeneficiaryGenericTopic();
-            
-            (string originatorSessionTopic, 
-             string sharedKey, 
-             string sharedKeyId,
-             string originatorSessionTopicFilter) = await CreateOriginatorSessionTopic();
+            //OriginatorSide
             string sessionRequestMessagePayload = GenerateSessionRequest(
                 sessionId,
-                originatorSessionTopic, 
-                sharedKey, 
-                originatorVaspInfo, 
+                originatorSessionTopic,
+                sharedKey,
+                originatorVaspInfo,
                 originatorSigningPrivateKey);
 
+            //OriginatorSide
             string messageHash1 = await SendMessage(
                 payload: sessionRequestMessagePayload,
                 receiverTopic: beneficiaryVaspCode,
                 encryptionType: EncryptionType.Assymetric,
                 encryptionKey: beneficiaryHandshakePubKey);
 
-            string[] receivedPayloads = await ReceiveMessage(filter: beneficiaryTopicFilter);
+            //BeneficiarySide
+            ReceivedMessage[] receivedMessages = await ReceiveMessage(filter: beneficiaryTopicFilter);
 
-            Assert.NotNull(receivedPayloads);
-            Assert.Single(receivedPayloads);
+            Assert.NotNull(receivedMessages);
+            Assert.Single(receivedMessages);
 
-            string payload = receivedPayloads.First();
+            ReceivedMessage receivedMessage = receivedMessages.First();
 
-            Assert.Equal(sessionRequestMessagePayload, payload);
+            Assert.Equal(sessionRequestMessagePayload, receivedMessage.Payload);
 
-            SessionRequestMessage sessionRequestMessage = ParseSessionRequestMessage(payload);
-            Assert.True(VerifySignature(sessionRequestMessage, originatorSigningPubKey));
+            //BeneficiarySide
+            SessionRequestMessage sessionRequestMessage = ParseSessionRequestMessage(receivedMessage.Payload);
+            //Assert.True(VerifySignature(sessionRequestMessage, originatorSigningPubKey));
 
-            (string beneficiarySessionTopic, string beneficiarySessionTopicFilter) = 
-                await CreateBeneficiarySessionTopic(sessionRequestMessage.HandShake.AesGsmSharedKey);
+            //BeneficiarySide
+            (string beneficiarySessionTopic, string beneficiarySessionTopicFilter) =
+                await CreateBeneficiarySessionTopic(sessionRequestMessage.HandShake.EcdhPubKey);
+
+            //BeneficiarySide
             string sessionReplyMessagePayload = GenerateSessionReply(
                 sessionId,
                 SessionReplyMessage.GetMessageCode(SessionReplyMessage.SessionReplyMessageCode.SessionAccepted),
-                beneficiarySessionTopic, 
-                beneficiaryVaspInfo, 
+                beneficiarySessionTopic,
+                beneficiaryVaspInfo,
                 beneficiarySigningPrivateKey);
 
+            //BeneficiarySide
             string messageHash2 = await SendMessage(
                 payload: sessionReplyMessagePayload,
                 receiverTopic: sessionRequestMessage.HandShake.TopicA,
                 encryptionType: EncryptionType.Symmetric,
-                encryptionKey: sharedKey);
+                encryptionKey: sharedKeyId,
+                signature: beneficiarySigningPrivateKeyId);
 
-            string[] receivedPayloads2 = await ReceiveMessage(filter: originatorSessionTopicFilter);
-            //asserts
-            SessionReplyMessage sessionReplyMessage = ParseSessionReplyMessage(receivedPayloads2.First());
-            Assert.True(ValidateSignature(sessionReplyMessage, beneficiarySigningPubKey));
+            //OriginatorSide
+            ReceivedMessage[] receivedMessages2 = await ReceiveMessage(filter: originatorSessionTopicFilter);
 
-            //string sessionReplyMessage = GenerateSessionReply(beTopicB, sharedKey, originatorVaspInfo, originatorSigningKey);
+            Assert.NotNull(receivedMessages2);
+            Assert.Single(receivedMessages2);
+
+            ReceivedMessage receivedMessage2 = receivedMessages2.First();
+
+            Assert.Equal(sessionReplyMessagePayload, receivedMessage2.Payload);
+
+            SessionReplyMessage sessionReplyMessage = ParseSessionReplyMessage(receivedMessages2.First().Payload);
+
+            _testOutputHelper?.WriteLine(sessionRequestMessage.HandShake.EcdhPubKey);
+            _testOutputHelper?.WriteLine(sessionReplyMessage.HandShake.TopicB);
+
+        }
+
+        private SessionReplyMessage ParseSessionReplyMessage(string payload)
+        {
+            var sessionRequestMessage = (SessionReplyMessage)_whisperFixture.WhisperMessageFormatter.Deserialize(payload, null);
+
+            return sessionRequestMessage;
+        }
+
+        //private bool VerifySignature(MessageBase sessionRequestMessage, string originatorSigningPubKey)
+        //{
+        //    var expectedSigner = new EthECKey(originatorSigningPubKey.HexToByteArray(), false);
+        //    var payload = _whisperFixture.WhisperMessageFormatter.GetPayload(sessionRequestMessage,);
+        //    var signerAddress = _whisperFixture.Signer.EncodeUTF8AndEcRecover(payload, sessionRequestMessage.Signature);
+
+        //    return expectedSigner.GetPublicAddress().Equals(signerAddress, StringComparison.CurrentCultureIgnoreCase);
+        //}
+
+        private string GenerateSessionReply(string sessionId,
+            string getMessageCode, string beneficiarySessionTopic, VaspInformation beneficiaryVaspInfo, string beneficiarySigningPrivateKey)
+        {
+            var handshake = new HandShakeResponse(beneficiarySessionTopic);
+            var sessionReplyMessage = new SessionReplyMessage(sessionId, handshake, beneficiaryVaspInfo);
+            //var payload = _whisperFixture.WhisperMessageFormatter.GetPayload(sessionReplyMessage, withSignature: false);
+            //sessionReplyMessage.Signature = _whisperFixture.Signer.EncodeUTF8AndSign(payload, new EthECKey(beneficiarySigningPrivateKey));
+            var payload = _whisperFixture.WhisperMessageFormatter.GetPayload(sessionReplyMessage);
+
+            return payload;
+        }
+
+        private async Task<(string, string)> CreateBeneficiarySessionTopic(string handShakeAesGsmSharedKey)
+        {
+            var topicB = "0x04060801";
+            var symKeyId = await _whisperFixture.Web3.Shh.SymKey.AddSymKey.SendRequestAsync(handShakeAesGsmSharedKey);
+
+            var filter = await _whisperFixture.Web3.Shh.MessageFilter.NewMessageFilter.SendRequestAsync(new MessageFilterInput()
+            {
+                Topics = new[] { topicB },
+                SymKeyID = symKeyId
+            });
+
+            return (topicB, filter);
+        }
+
+        private SessionRequestMessage ParseSessionRequestMessage(string payload)
+        {
+            var sessionRequestMessage = (SessionRequestMessage)_whisperFixture.WhisperMessageFormatter.Deserialize(payload, null);
+
+            return sessionRequestMessage;
+        }
+
+        private async Task<ReceivedMessage[]> ReceiveMessage(string filter)
+        {
+            var messages = await _whisperFixture.Web3.Shh.MessageFilter.GetFilterMessages.SendRequestAsync(filter);
+
+            if (messages == null || messages.Length == 0)
+            {
+                return new ReceivedMessage[] { };
+            }
+
+            var receivedMessages = messages.Select(x => new ReceivedMessage()
+            {
+                MessageEnvelope = new MessageEnvelope()
+                {
+                    Topic = x.Topic,
+                    EncryptionType = EncryptionType.Assymetric, // -_- Find a way to determine Symmetric encryption
+                    EncryptionKey = x.RecipientPublicKey,
+                    //Signature = x.Sig
+                },
+                Payload = x.Payload
+            }).ToArray();
+
+            return receivedMessages;
+        }
+
+        private async Task<string> SendMessage(string payload, string receiverTopic, EncryptionType encryptionType,
+            string encryptionKey, string signature = null)
+        {
+            var messageInput = new MessageInput()
+            {
+                Topic = receiverTopic,
+                Sig = signature,
+                Payload = payload,
+                //Find a way to calculate it
+                PowTime = 12,
+                PowTarget = 0.4,
+                Ttl = 300,
+            };
+
+            switch (encryptionType)
+            {
+                case EncryptionType.Assymetric:
+                    messageInput.PubKey = encryptionKey;
+                    break;
+                case EncryptionType.Symmetric:
+                    messageInput.SymKeyID = encryptionKey;
+                    break;
+                default:
+                    throw new ArgumentException(
+                        $"Current Encryption type {encryptionType} is not supported.",
+                        nameof(encryptionType));
+            }
+
+            var messageHash = await _whisperFixture.Web3.Shh.Post.SendRequestAsync(messageInput);
+
+            return messageHash;
+        }
+
+        private string GenerateSessionRequest(
+            string sessionId,
+            string originatorSessionTopic,
+            string sharedKey,
+            VaspInformation originatorVaspInfo,
+            string originatorSigningPrivateKey)
+        {
+            var handshake = new HandShakeRequest(originatorSessionTopic, sharedKey);
+            var sessionRequestMessage = new SessionRequestMessage(sessionId, handshake, originatorVaspInfo);
+
+            //TODO: Optimize signing
+            //var payload = _whisperFixture.WhisperMessageFormatter.GetPayload(sessionRequestMessage, withSignature:false);
+            //sessionRequestMessage.Signature = _whisperFixture.Signer.EncodeUTF8AndSign(payload, new EthECKey(originatorSigningPrivateKey));
+            var payload = _whisperFixture.WhisperMessageFormatter.GetPayload(sessionRequestMessage);
+
+            return payload;
+        }
+
+        private async Task<(string OriginatorVaspCode, string OriginatorSharedKey, string OriginatorHandshakeKeyId, string OriginatorTopicFilter)>
+            CreateOriginatorSessionTopic(string beneficiarySignPubKey)
+        {
+            var topicA = "0x02030405";
+            var symKeyGenerated = (new byte[]
+            {
+                97,
+                191,
+                23,
+                61,
+                91,
+                84,
+                160,
+                22,
+                249,
+                178,
+                199,
+                104,
+                15,
+                142,
+                33,
+                118,
+                205,
+                0,
+                7,
+                204,
+                189,
+                84,
+                81,
+                157,
+                159,
+                173,
+                174,
+                115,
+                154,
+                233,
+                131,
+                117
+            }).ToHex(prefix: true);
+
+
+            var symKeyId = await _whisperFixture.Web3.Shh.SymKey.AddSymKey.SendRequestAsync(symKeyGenerated);
+            var symKey = await _whisperFixture.Web3.Shh.SymKey.GetSymKey.SendRequestAsync(symKeyId);
+            var filter = await _whisperFixture.Web3.Shh.MessageFilter.NewMessageFilter.SendRequestAsync(new MessageFilterInput()
+            {
+                Topics = new[] { topicA },
+                SymKeyID = symKeyId,
+                Sig = beneficiarySignPubKey
+            });
+
+            return (topicA, symKey, symKeyId, filter);
+        }
+
+        private async Task<(string BeneficiaryVaspCode, string BeneficiaryHandshakePubKey, string BeneficiaryHandshakeKeyId, string BeneficiaryTopicFilter)>
+            CreateBeneficiaryGenericTopic()
+        {
+            var vaspCode = "0x01020304";
+            var generatedKey = await GenerateSigningKey();
+            var filter = await _whisperFixture.Web3.Shh.MessageFilter.NewMessageFilter.SendRequestAsync(new MessageFilterInput()
+            {
+                Topics = new[] { vaspCode },
+                PrivateKeyID = generatedKey.KeyId
+            });
+
+            return (vaspCode, generatedKey.PubKey, generatedKey.KeyId, filter);
+        }
+
+        private string GenerateSessionId()
+        {
+            return Guid.NewGuid().ToString();
+        }
+
+        private async Task<(string PubKey, string PrivateKey, string KeyId)> GenerateSigningKey()
+        {
+            var senderKId = await _whisperFixture.Web3.Shh.KeyPair.NewKeyPair.SendRequestAsync();
+            var receiverPubKey = await _whisperFixture.Web3.Shh.KeyPair.GetPublicKey.SendRequestAsync(senderKId);
+            var receiverPrivateKey = await _whisperFixture.Web3.Shh.KeyPair.GetPrivateKey.SendRequestAsync(senderKId);
+
+            return (receiverPubKey, receiverPrivateKey, senderKId);
+        }
+
+        private VaspInformation GenerateOriginatorVaspInfo(string vaspIdentity, string vaspPubKey)
+        {
+            var postalAddress = new PostalAddress(
+                "TestingStreet",
+                61,
+                "Test Address Line",
+                "410000",
+                "TownN",
+                Country.List["DE"]
+            );
+            var placeOfBirth = new PlaceOfBirth(DateTime.UtcNow, "TownN", Country.List["DE"]);
+            var vaspInformation = new VaspInformation(
+                "Sender test",
+                vaspIdentity,
+                vaspPubKey,
+                postalAddress,
+                placeOfBirth,
+                new NaturalPersonId[]
+                {
+                    new NaturalPersonId("SomeId2", NaturalIdentificationType.AlienRegistrationNumber,
+                        Country.List["DE"]),
+                },
+                new JuridicalPersonId[]
+                {
+                    new JuridicalPersonId("SomeId1", JuridicalIdentificationType.BankPartyIdentification,
+                        Country.List["DE"]),
+                },
+                "DEUTDEFF");
+            return vaspInformation;
+        }
+
+        private VaspInformation GenerateBeneficiaryVaspInfo(string vaspIdentity, string vaspPubKey)
+        {
+            var postalAddress = new PostalAddress(
+                "TestingStreet",
+                61,
+                "Test Address Line",
+                "410000",
+                "TownN",
+                Country.List["DE"]
+            );
+            var placeOfBirth = new PlaceOfBirth(DateTime.UtcNow, "TownN", Country.List["DE"]);
+            var vaspInformation = new VaspInformation(
+                "Sender test",
+                vaspIdentity,
+                vaspPubKey,
+                postalAddress,
+                placeOfBirth,
+                new NaturalPersonId[]
+                {
+                    new NaturalPersonId("SomeId2", NaturalIdentificationType.AlienRegistrationNumber,
+                        Country.List["DE"]),
+                },
+                new JuridicalPersonId[]
+                {
+                    new JuridicalPersonId("SomeId1", JuridicalIdentificationType.BankPartyIdentification,
+                        Country.List["DE"]),
+                },
+                "DEUTDEFF");
+            return vaspInformation;
         }
 
         private static VaspInformation GetSenderVaspInformation(string vaspIdentity, string vaspPubKey)
@@ -286,6 +612,7 @@ namespace OpenVASP.Tests
                         Country.List["DE"]),
                 },
                 "DEUTDEFF");
+
             return vaspInformation;
         }
 
@@ -317,6 +644,7 @@ namespace OpenVASP.Tests
                         Country.List["DE"]),
                 },
                 "DEUTDEFF");
+
             return vaspInformation;
         }
     }

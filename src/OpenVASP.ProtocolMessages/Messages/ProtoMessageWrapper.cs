@@ -30,7 +30,7 @@ namespace OpenVASP.ProtocolMessages.Messages {
             "ZXNzYWdlLnByb3RvGh9Qcm90b1RyYW5zZmVyUmVwbHlNZXNzYWdlLnByb3Rv",
             "GiJQcm90b1RyYW5zZmVyRGlzcGF0Y2hNZXNzYWdlLnByb3RvGiZQcm90b1Ry",
             "YW5zZmVyQ29uZmlybWF0aW9uTWVzc2FnZS5wcm90bxodUHJvdG9UZXJtaW5h",
-            "dGlvbk1lc3NhZ2UucHJvdG8i+wQKE1Byb3RvTWVzc2FnZVdyYXBwZXISUAoX",
+            "dGlvbk1lc3NhZ2UucHJvdG8ijwUKE1Byb3RvTWVzc2FnZVdyYXBwZXISUAoX",
             "c2Vzc2lvbl9yZXF1ZXN0X21lc3NhZ2UYASABKAsyLS5wcm90b2J1Zl9vcGVu",
             "dmFzcC5Qcm90b1Nlc3Npb25SZXF1ZXN0TWVzc2FnZUgAEkwKFXNlc3Npb25f",
             "cmVwbHlfbWVzc2FnZRgCIAEoCzIrLnByb3RvYnVmX29wZW52YXNwLlByb3Rv",
@@ -44,12 +44,13 @@ namespace OpenVASP.ProtocolMessages.Messages {
             "cm90b2J1Zl9vcGVudmFzcC5Qcm90b1RyYW5zZmVyQ29uZmlybWF0aW9uTWVz",
             "c2FnZUgAEkkKE3Rlcm1pbmF0aW9uX21lc3NhZ2UYByABKAsyKi5wcm90b2J1",
             "Zl9vcGVudmFzcC5Qcm90b1Rlcm1pbmF0aW9uTWVzc2FnZUgAEhkKDnJlc2Vy",
-            "dmVkX2ZpZWxkGOcHIAEoBUgAQgUKA21zZ0IlqgIiT3BlblZBU1AuUHJvdG9j",
-            "b2xNZXNzYWdlcy5NZXNzYWdlc2IGcHJvdG8z"));
+            "dmVkX2ZpZWxkGOcHIAEoBUgAEhIKCXNpZ25hdHVyZRjoByABKAlCBQoDbXNn",
+            "QiWqAiJPcGVuVkFTUC5Qcm90b2NvbE1lc3NhZ2VzLk1lc3NhZ2VzYgZwcm90",
+            "bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::OpenVASP.ProtocolMessages.Messages.ProtoSessionRequestMessageReflection.Descriptor, global::OpenVASP.ProtocolMessages.Messages.ProtoSessionReplyMessageReflection.Descriptor, global::OpenVASP.ProtocolMessages.Messages.ProtoTransferRequestMessageReflection.Descriptor, global::OpenVASP.ProtocolMessages.Messages.ProtoTransferReplyMessageReflection.Descriptor, global::OpenVASP.ProtocolMessages.Messages.ProtoTransferDispatchMessageReflection.Descriptor, global::OpenVASP.ProtocolMessages.Messages.ProtoTransferConfirmationMessageReflection.Descriptor, global::OpenVASP.ProtocolMessages.Messages.ProtoTerminationMessageReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::OpenVASP.ProtocolMessages.Messages.ProtoMessageWrapper), global::OpenVASP.ProtocolMessages.Messages.ProtoMessageWrapper.Parser, new[]{ "SessionRequestMessage", "SessionReplyMessage", "TransferRequestMessage", "TransferReplyMessage", "TransferDispatchMessage", "TransaferConfirmationMessage", "TerminationMessage", "ReservedField" }, new[]{ "Msg" }, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::OpenVASP.ProtocolMessages.Messages.ProtoMessageWrapper), global::OpenVASP.ProtocolMessages.Messages.ProtoMessageWrapper.Parser, new[]{ "SessionRequestMessage", "SessionReplyMessage", "TransferRequestMessage", "TransferReplyMessage", "TransferDispatchMessage", "TransaferConfirmationMessage", "TerminationMessage", "ReservedField", "Signature" }, new[]{ "Msg" }, null, null, null)
           }));
     }
     #endregion
@@ -81,6 +82,7 @@ namespace OpenVASP.ProtocolMessages.Messages {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public ProtoMessageWrapper(ProtoMessageWrapper other) : this() {
+      signature_ = other.signature_;
       switch (other.MsgCase) {
         case MsgOneofCase.SessionRequestMessage:
           SessionRequestMessage = other.SessionRequestMessage.Clone();
@@ -204,6 +206,17 @@ namespace OpenVASP.ProtocolMessages.Messages {
       }
     }
 
+    /// <summary>Field number for the "signature" field.</summary>
+    public const int SignatureFieldNumber = 1000;
+    private string signature_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public string Signature {
+      get { return signature_; }
+      set {
+        signature_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
     private object msg_;
     /// <summary>Enum of possible cases for the "msg" oneof.</summary>
     public enum MsgOneofCase {
@@ -250,6 +263,7 @@ namespace OpenVASP.ProtocolMessages.Messages {
       if (!object.Equals(TransaferConfirmationMessage, other.TransaferConfirmationMessage)) return false;
       if (!object.Equals(TerminationMessage, other.TerminationMessage)) return false;
       if (ReservedField != other.ReservedField) return false;
+      if (Signature != other.Signature) return false;
       if (MsgCase != other.MsgCase) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
@@ -265,6 +279,7 @@ namespace OpenVASP.ProtocolMessages.Messages {
       if (msgCase_ == MsgOneofCase.TransaferConfirmationMessage) hash ^= TransaferConfirmationMessage.GetHashCode();
       if (msgCase_ == MsgOneofCase.TerminationMessage) hash ^= TerminationMessage.GetHashCode();
       if (msgCase_ == MsgOneofCase.ReservedField) hash ^= ReservedField.GetHashCode();
+      if (Signature.Length != 0) hash ^= Signature.GetHashCode();
       hash ^= (int) msgCase_;
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
@@ -311,6 +326,10 @@ namespace OpenVASP.ProtocolMessages.Messages {
         output.WriteRawTag(184, 62);
         output.WriteInt32(ReservedField);
       }
+      if (Signature.Length != 0) {
+        output.WriteRawTag(194, 62);
+        output.WriteString(Signature);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -343,6 +362,9 @@ namespace OpenVASP.ProtocolMessages.Messages {
       if (msgCase_ == MsgOneofCase.ReservedField) {
         size += 2 + pb::CodedOutputStream.ComputeInt32Size(ReservedField);
       }
+      if (Signature.Length != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeStringSize(Signature);
+      }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -353,6 +375,9 @@ namespace OpenVASP.ProtocolMessages.Messages {
     public void MergeFrom(ProtoMessageWrapper other) {
       if (other == null) {
         return;
+      }
+      if (other.Signature.Length != 0) {
+        Signature = other.Signature;
       }
       switch (other.MsgCase) {
         case MsgOneofCase.SessionRequestMessage:
@@ -478,6 +503,10 @@ namespace OpenVASP.ProtocolMessages.Messages {
           }
           case 7992: {
             ReservedField = input.ReadInt32();
+            break;
+          }
+          case 8002: {
+            Signature = input.ReadString();
             break;
           }
         }

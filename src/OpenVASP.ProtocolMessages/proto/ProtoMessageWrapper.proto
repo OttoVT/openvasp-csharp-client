@@ -24,4 +24,6 @@ message ProtoMessageWrapper {
 
     int32 reserved_field =999;
   }
+
+  string signature = 1000;
 }

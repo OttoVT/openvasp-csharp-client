@@ -14,7 +14,7 @@ namespace OpenVASP.Whisper.Mappers
                 Comment = message.Comment,
                 TopicB = message.HandShake.TopicB,
                 Message = Mapper.MapMessageToProto(message.MessageType, message.Message),
-                VaspInfo = Mapper.MapVaspInformationToProto(message.VASP)
+                VaspInfo = Mapper.MapVaspInformationToProto(message.VASP),
             };
 
             return proto;

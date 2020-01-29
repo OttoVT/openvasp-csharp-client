@@ -26,11 +26,11 @@ namespace OpenVASP.ProtocolMessages.Messages {
           string.Concat(
             "Ch5Qcm90b1Nlc3Npb25SZXBseU1lc3NhZ2UucHJvdG8SEXByb3RvYnVmX29w",
             "ZW52YXNwGhNQcm90b1Zhc3BJbmZvLnByb3RvGhJQcm90b01lc3NhZ2UucHJv",
-            "dG8iogEKGFByb3RvU2Vzc2lvblJlcGx5TWVzc2FnZRIwCgdtZXNzYWdlGAEg",
+            "dG8iowEKGFByb3RvU2Vzc2lvblJlcGx5TWVzc2FnZRIwCgdtZXNzYWdlGAEg",
             "ASgLMh8ucHJvdG9idWZfb3BlbnZhc3AuUHJvdG9NZXNzYWdlEg8KB3RvcGlj",
-            "X2IYAiABKAkSDwoHY29tbWVudBgDIAEoCRIyCghWYXNwSW5mbxgEIAEoCzIg",
-            "LnByb3RvYnVmX29wZW52YXNwLlByb3RvVmFzcEluZm9CJaoCIk9wZW5WQVNQ",
-            "LlByb3RvY29sTWVzc2FnZXMuTWVzc2FnZXNiBnByb3RvMw=="));
+            "X2IYAiABKAkSDwoHY29tbWVudBgDIAEoCRIzCgl2YXNwX2luZm8YBCABKAsy",
+            "IC5wcm90b2J1Zl9vcGVudmFzcC5Qcm90b1Zhc3BJbmZvQiWqAiJPcGVuVkFT",
+            "UC5Qcm90b2NvbE1lc3NhZ2VzLk1lc3NhZ2VzYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::OpenVASP.ProtocolMessages.Messages.ProtoVaspInfoReflection.Descriptor, global::OpenVASP.ProtocolMessages.Messages.ProtoMessageReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
@@ -111,7 +111,7 @@ namespace OpenVASP.ProtocolMessages.Messages {
       }
     }
 
-    /// <summary>Field number for the "VaspInfo" field.</summary>
+    /// <summary>Field number for the "vasp_info" field.</summary>
     public const int VaspInfoFieldNumber = 4;
     private global::OpenVASP.ProtocolMessages.Messages.ProtoVaspInfo vaspInfo_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]

@@ -6,6 +6,8 @@
 
         public MessageEnvelope MessageEnvelope { get; set; }
 
+        public string Signature { get; set; }
+
         public string Comment { get; set; } = string.Empty;
     }
 }

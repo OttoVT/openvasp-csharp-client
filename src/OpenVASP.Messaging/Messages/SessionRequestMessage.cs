@@ -1,4 +1,5 @@
-﻿using OpenVASP.Messaging.Messages.Entities;
+﻿using System;
+using OpenVASP.Messaging.Messages.Entities;
 
 namespace OpenVASP.Messaging.Messages
 {
@@ -8,6 +9,14 @@ namespace OpenVASP.Messaging.Messages
         {
             MessageType = MessageType.SessionRequest;
             Message = message;
+            HandShake = handshake;
+            VASP = vasp;
+        }
+
+        public SessionRequestMessage(string sessionId, HandShakeRequest handshake, VaspInformation vasp)
+        {
+            MessageType = MessageType.SessionRequest;
+            Message = new Message(Guid.NewGuid().ToString(), sessionId, "1");
             HandShake = handshake;
             VASP = vasp;
         }

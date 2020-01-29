@@ -15,10 +15,10 @@ namespace OpenVASP.Whisper.Mappers
             var proto = new ProtoSessionRequestMessage()
             {
                 Comment = message.Comment,
-                EcdshPubKey = message.HandShake.AesGsmSharedKey,
+                EcdshPubKey = message.HandShake.EcdhPubKey,
                 Message = Mapper.MapMessageToProto(message.MessageType, message.Message),
                 TopicA = message.HandShake.TopicA,
-                VaspInfo = Mapper.MapVaspInformationToProto(message.VASP)
+                VaspInfo = Mapper.MapVaspInformationToProto(message.VASP),
             };
 
             return proto;

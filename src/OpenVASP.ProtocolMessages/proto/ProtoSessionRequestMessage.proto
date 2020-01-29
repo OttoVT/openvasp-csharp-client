@@ -16,5 +16,5 @@ message ProtoSessionRequestMessage {
 
   string comment = 4;
 
-  ProtoVaspInfo VaspInfo = 5;
+  ProtoVaspInfo vasp_info = 5;
 }
