@@ -37,5 +37,10 @@
         public JuridicalPersonId[] JuridicalPersonIds { get; set; }
 
         public string BIC { get; set; }
+
+        public string GetVaspCode()
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }
