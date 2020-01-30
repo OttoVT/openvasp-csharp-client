@@ -42,6 +42,16 @@ namespace OpenVASP.CSharpClient.Cryptography
             return key;
         }
 
+        public static X25519Key ImportKey(string privateKeyHex)
+        {
+            X25519PrivateKeyParameters privateKey = new X25519PrivateKeyParameters(privateKeyHex.HexToByteArray(), 0);
+            X25519PublicKeyParameters publicKey = privateKey.GeneratePublicKey();
+            var importedKey = new AsymmetricCipherKeyPair(publicKey, privateKey);
+            var key = new X25519Key(importedKey);
+
+            return key;
+        }
+
         private static string GetPublicKey(AsymmetricCipherKeyPair keyPair)
         {
             if (keyPair.Public is X25519PublicKeyParameters dhPublicKeyParameters)
