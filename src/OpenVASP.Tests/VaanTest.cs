@@ -1,6 +1,4 @@
-﻿using Nethereum.Signer;
-using OpenVASP.CSharpClient.Cryptography;
-using OpenVASP.Messaging.Messages.Entities;
+﻿using OpenVASP.Messaging.Messages.Entities;
 using Xunit;
 using Xunit.Abstractions;
 

@@ -9,4 +9,12 @@
     <PackageReference Include="Portable.BouncyCastle" Version="1.8.5.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\OpenVASP.Messaging\OpenVASP.Messaging.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Exceptions\" />
+  </ItemGroup>
+
 </Project>
