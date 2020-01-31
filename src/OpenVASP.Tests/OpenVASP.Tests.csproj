@@ -19,4 +19,10 @@
     <ProjectReference Include="..\OpenVASP.Whisper\OpenVASP.Whisper.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="VASP.abi">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
