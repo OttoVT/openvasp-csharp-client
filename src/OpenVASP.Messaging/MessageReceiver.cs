@@ -43,16 +43,44 @@ namespace OpenVASP.Messaging
         }
     }
 
+    public class MessageHandlerResolverBuilder
+    {
+        private List<(Type type, MessageHandlerBase handler)> _registeredHandlers;
+        public MessageHandlerResolverBuilder()
+        {
+            _registeredHandlers = new List<(Type type, MessageHandlerBase handler)>();
+        }
+
+        public MessageHandlerResolverBuilder AddHandler(Type type, MessageHandlerBase handler)
+        {
+            _registeredHandlers.Add((type, handler));
+
+            return this;
+        }
+
+        public MessageHandlerResolver Build()
+        {
+            var messageHandlerResolver = new MessageHandlerResolver(_registeredHandlers.ToArray());
+
+            return messageHandlerResolver;
+        }
+    }
+
     public class MessageHandlerResolver
     {
-        public MessageHandlerResolver(params (Type type, MessageHandlerBase handler)[] handlers)
+        private readonly Dictionary<Type, MessageHandlerBase[]> handlersDict;
+
+        public MessageHandlerResolver()
+        {
+            handlersDict = new Dictionary<Type, MessageHandlerBase[]>();
+        }
+
+        internal MessageHandlerResolver(params (Type type, MessageHandlerBase handler)[] handlers)
         {
             handlersDict = handlers
                 .GroupBy(x => x.type, y => y.handler)
                 .ToDictionary(group => group.Key, group => group.ToArray());
         }
-
-        public readonly Dictionary<Type, MessageHandlerBase[]> handlersDict;
 
         public MessageHandlerBase[] ResolveMessageHandlers(Type type)
         {

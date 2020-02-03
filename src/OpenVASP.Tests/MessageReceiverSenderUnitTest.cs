@@ -20,16 +20,17 @@ namespace OpenVASP.Tests
         [Fact]
         public async Task TestSendingSessionRequestMessage()
         {
-            var fakeTransport = new FakeTransortClient();
             SessionRequestMessage receivedMessage = null;
+            var messageHandlerResolverBuilder = new MessageHandlerResolverBuilder();
+            messageHandlerResolverBuilder.AddHandler(typeof(SessionRequestMessage),
+                new SessionRequestMessageHandler((messageForProcessing, token) =>
+                {
+                    receivedMessage = messageForProcessing;
+                    return Task.FromResult(0);
+                }));
+            var fakeTransport = new FakeTransortClient();
             var messageSender = new MessageSender(new WhisperMessageFormatter(), fakeTransport);
-            var messageHandlerResolver =
-                new MessageHandlerResolver(
-                    (typeof(SessionRequestMessage), new SessionRequestMessageHandler((messageForProcessing, token) =>
-                    {
-                        receivedMessage = messageForProcessing;
-                        return Task.FromResult(0);
-                    })));
+            var messageHandlerResolver = messageHandlerResolverBuilder.Build();
             var messageReceiver = new MessageReceiver(new WhisperMessageFormatter(), fakeTransport, messageHandlerResolver);
             var request = GetSessionRequestMessage();
 
@@ -47,16 +48,18 @@ namespace OpenVASP.Tests
         {
             var fakeTransport = new FakeTransortClient();
             SessionReplyMessage receivedMessage = null;
+            var messageHandlerResolverBuilder = new MessageHandlerResolverBuilder();
+            messageHandlerResolverBuilder.AddHandler(typeof(SessionReplyMessage),
+                new SessionReplyMessageHandler((messageForProcessing, token) =>
+                {
+                    receivedMessage = messageForProcessing;
+                    return Task.FromResult(0);
+                }));
+            var messageHandlerResolver = messageHandlerResolverBuilder.Build();
             var messageSender = new MessageSender(new WhisperMessageFormatter(), fakeTransport);
-            var messageHandlerResolver =
-                new MessageHandlerResolver(
-                    (typeof(SessionReplyMessage), new SessionReplyMessageHandler((messageForProcessing, token) =>
-                    {
-                        receivedMessage = messageForProcessing;
-                        return Task.FromResult(0);
-                    })));
             var messageReceiver = new MessageReceiver(new WhisperMessageFormatter(), fakeTransport, messageHandlerResolver);
             var request = GetSessionReplyMessage();
+            var serialized = Newtonsoft.Json.JsonConvert.SerializeObject(request);
 
             var messageHash = await messageSender.SendMessageAsync(request);
 
@@ -73,13 +76,14 @@ namespace OpenVASP.Tests
             var fakeTransport = new FakeTransortClient();
             TransferRequestMessage receivedMessage = null;
             var messageSender = new MessageSender(new WhisperMessageFormatter(), fakeTransport);
-            var messageHandlerResolver =
-                new MessageHandlerResolver(
-                    (typeof(TransferRequestMessage), new TransferRequestMessageHandler((messageForProcessing, token) =>
-                    {
-                        receivedMessage = messageForProcessing;
-                        return Task.FromResult(0);
-                    })));
+            var messageHandlerResolverBuilder = new MessageHandlerResolverBuilder();
+            messageHandlerResolverBuilder.AddHandler(typeof(TransferRequestMessage),
+                new TransferRequestMessageHandler((messageForProcessing, token) =>
+                {
+                    receivedMessage = messageForProcessing;
+                    return Task.FromResult(0);
+                }));
+            var messageHandlerResolver = messageHandlerResolverBuilder.Build();
             var messageReceiver = new MessageReceiver(new WhisperMessageFormatter(), fakeTransport, messageHandlerResolver);
             var request = GetTransferRequestMessage();
 
@@ -98,13 +102,14 @@ namespace OpenVASP.Tests
             var fakeTransport = new FakeTransortClient();
             TransferReplyMessage receivedMessage = null;
             var messageSender = new MessageSender(new WhisperMessageFormatter(), fakeTransport);
-            var messageHandlerResolver =
-                new MessageHandlerResolver(
-                    (typeof(TransferReplyMessage), new TransferReplyMessageHandler((messageForProcessing, token) =>
-                    {
-                        receivedMessage = messageForProcessing;
-                        return Task.FromResult(0);
-                    })));
+            var messageHandlerResolverBuilder = new MessageHandlerResolverBuilder();
+            messageHandlerResolverBuilder.AddHandler(typeof(TransferReplyMessage),
+                new TransferReplyMessageHandler((messageForProcessing, token) =>
+                {
+                    receivedMessage = messageForProcessing;
+                    return Task.FromResult(0);
+                }));
+            var messageHandlerResolver = messageHandlerResolverBuilder.Build();
             var messageReceiver = new MessageReceiver(new WhisperMessageFormatter(), fakeTransport, messageHandlerResolver);
             var request = GetTransferReplyMessage();
 
@@ -123,13 +128,14 @@ namespace OpenVASP.Tests
             var fakeTransport = new FakeTransortClient();
             TransferDispatchMessage receivedMessage = null;
             var messageSender = new MessageSender(new WhisperMessageFormatter(), fakeTransport);
-            var messageHandlerResolver =
-                new MessageHandlerResolver(
-                    (typeof(TransferDispatchMessage), new TransferDispatchMessageHandler((messageForProcessing, token) =>
-                    {
-                        receivedMessage = messageForProcessing;
-                        return Task.FromResult(0);
-                    })));
+            var messageHandlerResolverBuilder = new MessageHandlerResolverBuilder();
+            messageHandlerResolverBuilder.AddHandler(typeof(TransferDispatchMessage),
+                new TransferDispatchMessageHandler((messageForProcessing, token) =>
+                {
+                    receivedMessage = messageForProcessing;
+                    return Task.FromResult(0);
+                }));
+            var messageHandlerResolver = messageHandlerResolverBuilder.Build();
             var messageReceiver = new MessageReceiver(new WhisperMessageFormatter(), fakeTransport, messageHandlerResolver);
             var request = GetTransferDispatchMessage();
 
@@ -148,13 +154,14 @@ namespace OpenVASP.Tests
             var fakeTransport = new FakeTransortClient();
             TransferConfirmationMessage receivedMessage = null;
             var messageSender = new MessageSender(new WhisperMessageFormatter(), fakeTransport);
-            var messageHandlerResolver =
-                new MessageHandlerResolver(
-                    (typeof(TransferConfirmationMessage), new TransferConfirmationMessageHandler((messageForProcessing, token) =>
-                    {
-                        receivedMessage = messageForProcessing;
-                        return Task.FromResult(0);
-                    })));
+            var messageHandlerResolverBuilder = new MessageHandlerResolverBuilder();
+            messageHandlerResolverBuilder.AddHandler(typeof(TransferConfirmationMessage),
+                new TransferConfirmationMessageHandler((messageForProcessing, token) =>
+                {
+                    receivedMessage = messageForProcessing;
+                    return Task.FromResult(0);
+                }));
+            var messageHandlerResolver = messageHandlerResolverBuilder.Build();
             var messageReceiver = new MessageReceiver(new WhisperMessageFormatter(), fakeTransport, messageHandlerResolver);
             var request = GetTransferConfirmationMessage();
 
@@ -173,13 +180,14 @@ namespace OpenVASP.Tests
             var fakeTransport = new FakeTransortClient();
             TerminationMessage receivedMessage = null;
             var messageSender = new MessageSender(new WhisperMessageFormatter(), fakeTransport);
-            var messageHandlerResolver =
-                new MessageHandlerResolver(
-                    (typeof(TerminationMessage), new TerminationMessageHandler((messageForProcessing, token) =>
-                    {
-                        receivedMessage = messageForProcessing;
-                        return Task.FromResult(0);
-                    })));
+            var messageHandlerResolverBuilder = new MessageHandlerResolverBuilder();
+            messageHandlerResolverBuilder.AddHandler(typeof(TerminationMessage),
+                new TerminationMessageHandler((messageForProcessing, token) =>
+                {
+                    receivedMessage = messageForProcessing;
+                    return Task.FromResult(0);
+                }));
+            var messageHandlerResolver = messageHandlerResolverBuilder.Build();
             var messageReceiver = new MessageReceiver(new WhisperMessageFormatter(), fakeTransport, messageHandlerResolver);
             var request = GetTerminationMessage();
 

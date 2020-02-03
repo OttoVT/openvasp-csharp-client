@@ -36,8 +36,23 @@ namespace OpenVASP.Whisper.Mappers
                 Bic = vaspInfo.BIC
             };
 
-            proto.JuridicalPersonId.Add(vaspInfo.JuridicalPersonIds.Select<JuridicalPersonId, ProtoJuridicalPersonId>(x => MapJuridicalPersonIdToProto(x)));
-            proto.NaturalPersonId.Add(vaspInfo.NaturalPersonIds.Select<NaturalPersonId, ProtoNaturalPersonId>(x => MapNaturalPersonIdToProto(x)));
+            var juridicalPeronsIds = vaspInfo
+                .JuridicalPersonIds?.Select<JuridicalPersonId, ProtoJuridicalPersonId>(x =>
+                MapJuridicalPersonIdToProto(x));
+
+            var naturalPersonsIds =
+                vaspInfo.NaturalPersonIds?.Select<NaturalPersonId, ProtoNaturalPersonId>(x =>
+                    MapNaturalPersonIdToProto(x));
+
+            if (juridicalPeronsIds != null)
+            {
+                proto.JuridicalPersonId.Add(juridicalPeronsIds);
+            }
+
+            if (naturalPersonsIds != null)
+            {
+                proto.NaturalPersonId.Add(naturalPersonsIds);
+            }
 
             return proto;
         }

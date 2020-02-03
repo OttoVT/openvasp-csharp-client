@@ -1,4 +1,6 @@
-﻿namespace OpenVASP.Messaging.Messages.Entities
+﻿using System.Linq;
+
+namespace OpenVASP.Messaging.Messages.Entities
 {
     public class VaspInformation
     {
@@ -40,7 +42,9 @@
 
         public string GetVaspCode()
         {
-            throw new System.NotImplementedException();
+            var vaspCode = new string(VaspIdentity.Skip(VaspIdentity.Length - 8).Take(8).ToArray());
+
+            return vaspCode;
         }
     }
 }

@@ -2,7 +2,8 @@
 {
     public enum EncryptionType
     {
-        Assymetric = 0,
-        Symmetric = 1
+        None = 0,
+        Assymetric = 1,
+        Symmetric = 2
     }
 }

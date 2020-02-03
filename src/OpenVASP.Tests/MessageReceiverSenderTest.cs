@@ -26,13 +26,14 @@ namespace OpenVASP.Tests
             var whisperClient = new WhisperClient(gethUrl);
             SessionRequestMessage receivedMessage = null;
             var messageSender = new MessageSender(new WhisperMessageFormatter(), whisperClient);
-            var messageHandlerResolver =
-                new MessageHandlerResolver(
-                    (typeof(SessionRequestMessage), new SessionRequestMessageHandler((messageForProcessing, token) =>
-                    {
-                        receivedMessage = messageForProcessing;
-                        return Task.FromResult(0);
-                    })));
+            var messageHandlerResolverBuilder = new MessageHandlerResolverBuilder();
+            messageHandlerResolverBuilder.AddHandler(typeof(SessionRequestMessage),
+                new SessionRequestMessageHandler((messageForProcessing, token) =>
+                {
+                    receivedMessage = messageForProcessing;
+                    return Task.FromResult(0);
+                }));
+            var messageHandlerResolver = messageHandlerResolverBuilder.Build();
             var messageReceiver = new MessageReceiver(new WhisperMessageFormatter(), whisperClient, messageHandlerResolver);
             //Should be a contract
             var vaspKey = EthECKey.GenerateKey();

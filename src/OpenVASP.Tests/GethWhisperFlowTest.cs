@@ -20,7 +20,7 @@ namespace OpenVASP.Tests
     {
         public WhisperFixture()
         {
-            string gethUrl = "http://144.76.25.187:8025";
+            string gethUrl = "";
             this.Web3 = new Web3(gethUrl);
             this.WhisperMessageFormatter = new WhisperMessageFormatter();
             this.Signer = new EthereumMessageSigner();

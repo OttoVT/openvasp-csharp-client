@@ -58,7 +58,7 @@ namespace OpenVASP.CSharpClient.Cryptography
             {
                 return dhPublicKeyParameters.GetEncoded().ToHex(prefix: true);
             }
-            throw new NullReferenceException("The key pair provided is not a valid DH keypair.");
+            throw new NullReferenceException("The key pair provided is not a valid ECDH keypair.");
         }
 
         // This returns a
@@ -68,7 +68,7 @@ namespace OpenVASP.CSharpClient.Cryptography
             {
                 return dhPrivateKeyParameters.GetEncoded().ToHex(prefix: true);
             }
-            throw new NullReferenceException("The key pair provided is not a valid DH keypair.");
+            throw new NullReferenceException("The key pair provided is not a valid ECDH keypair.");
         }
     }
 }

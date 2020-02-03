@@ -1,4 +1,5 @@
-﻿using OpenVASP.Messaging.Messages.Entities;
+﻿using System;
+using OpenVASP.Messaging.Messages.Entities;
 
 namespace OpenVASP.Messaging.Messages
 {
@@ -8,6 +9,15 @@ namespace OpenVASP.Messaging.Messages
         {
             MessageType = MessageType.Termination;
             Message = message;
+            VASP = vasp;
+        }
+
+        public TerminationMessage(string sessionId, TerminationMessageCode messageCode, VaspInformation vasp)
+        {
+            Message = new Message(
+                Guid.NewGuid().ToString(),
+                sessionId,
+                GetMessageCode(messageCode));
             VASP = vasp;
         }
 

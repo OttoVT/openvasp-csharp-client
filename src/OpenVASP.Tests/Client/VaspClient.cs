@@ -1,9 +1,13 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using OpenVASP.CSharpClient;
 using OpenVASP.CSharpClient.Cryptography;
+using OpenVASP.Messaging;
 using OpenVASP.Messaging.Messages;
 using OpenVASP.Messaging.Messages.Entities;
 
@@ -16,6 +20,8 @@ namespace OpenVASP.Tests.Client
         private VaspContractInfo _vaspContractInfo;
         private CancellationTokenSource _cancellationTokenSource;
         private Task _listener;
+        private readonly MessageHandlerResolverBuilder _messageHandlerResolverBuilder;
+        private readonly IEnsProvider _ensProvider;
 
         public VaspInformation VaspInfo { get; private set; }
 
@@ -29,11 +35,15 @@ namespace OpenVASP.Tests.Client
 
         public VaspClient(
             IEthereumRpc nodeClientEthereumRpc,
-            IWhisperRpc nodeClientWhisperRpc)
+            IWhisperRpc nodeClientWhisperRpc,
+            IEnsProvider ensProvider,
+            MessageHandlerResolverBuilder messageHandlerResolverBuilder)
         {
             this._ethereumRpc = nodeClientEthereumRpc;
             this._whisperRpc = nodeClientWhisperRpc;
-            _cancellationTokenSource = new CancellationTokenSource();
+            this._cancellationTokenSource = new CancellationTokenSource();
+            this._messageHandlerResolverBuilder = messageHandlerResolverBuilder;
+            this._ensProvider = ensProvider;
         }
 
         public void RunListener(IVaspMessageHandler messageHandler)
@@ -42,7 +52,8 @@ namespace OpenVASP.Tests.Client
 
             this._listener = Task.Run(async () =>
             {
-                string messageFilter = await _whisperRpc.CreateMessageFilterAsync(topic: _vaspContractInfo.VaspCode.Code);
+                var privateKeyId = await _whisperRpc.RegisterKeyPairAsync(this.HandshakeKey.PrivateKey);
+                string messageFilter = await _whisperRpc.CreateMessageFilterAsync(topic: _vaspContractInfo.VaspCode.Code, privateKeyId);
 
                 do
                 {
@@ -54,16 +65,47 @@ namespace OpenVASP.Tests.Client
                         foreach (var sessionRequestMessage in sessionRequestMessages)
                         {
                             var reply = await messageHandler.SessionRequestHandlerAsync(sessionRequestMessage);
+                            var sharedKey = this.HandshakeKey.GenerateSharedSecretHex(sessionRequestMessage.HandShake.EcdhPubKey);
+                            var originatorVaspContractInfo = await _ethereumRpc.GetVaspContractInfoAync(sessionRequestMessage.VASP.VaspIdentity);
 
-                            var session = new VaspSession()
+                            var session = new BeneficiarySession(
+                                sessionRequestMessage.Message.SessionId,
+                                sessionRequestMessage.HandShake.TopicA,
+                                originatorVaspContractInfo.SigningKey,
+                                sharedKey,
+                                this.SignatureKey,
+                                this._whisperRpc,
+                                this._messageHandlerResolverBuilder
+                                )
                             {
-                                Counterparty = new VaspSessionCounterparty()
+                                CounterParty = new VaspSessionCounterparty()
                                 {
                                     VaspInfo = reply.VASP,
+                                    // ?? Vaan = 
                                 }
                             };
-                            session.IsBeneficiary = true;
+
+                            if (BeneficiarySessionsDict.TryAdd(session.SessionId, session))
+                            {
+                                var sharedSymKeyId = await _whisperRpc.RegisterSymKeyAsync(sharedKey);
+
+                                await _whisperRpc.SendMessageAsync(new MessageEnvelope()
+                                {
+                                    EncryptionKey = sharedSymKeyId,
+                                    EncryptionType = EncryptionType.Symmetric,
+                                    Topic = sessionRequestMessage.HandShake.TopicA,
+                                    Signature = this.SignatureKey
+                                }, reply);
+
+                                await session.StartAsync();
+                            }
+                            else
+                            {
+                                await session.TerminateAsync();
+                            }
                         }
+
+                        continue;
                     }
 
                     await Task.Delay(5000, token);
@@ -71,11 +113,36 @@ namespace OpenVASP.Tests.Client
             }, token);
         }
 
-        public async Task<VaspSession> CreateSessionAsync(VirtualAssetssAccountNumber beneficiaryVaan)
-        {
-            var session = new VaspSession();
+        public ConcurrentDictionary<string, BeneficiarySession> BeneficiarySessionsDict { get; } = new ConcurrentDictionary<string, BeneficiarySession>();
 
-            return session;
+        public ConcurrentDictionary<string, OriginatorSession> OriginatorSessionsDict { get; } = new ConcurrentDictionary<string, OriginatorSession>();
+
+        public async Task<OriginatorSession> CreateSessionAsync(VirtualAssetssAccountNumber beneficiaryVaan)
+        {
+            string counterPartyVaspContractAddress = await _ensProvider.GetContractAddressByVaspCodeAsync(beneficiaryVaan.VaspCode);
+            var contractInfo = await _ethereumRpc.GetVaspContractInfoAync(counterPartyVaspContractAddress);
+            var sessionX25519Key = X25519Key.GenerateKey();
+            var sharedKey = sessionX25519Key.GenerateSharedSecretHex(contractInfo.HandshakeKey);
+            
+            var session = new OriginatorSession(
+                this.VaspInfo,
+                beneficiaryVaan,
+                contractInfo.SigningKey,
+                contractInfo.HandshakeKey,
+                sharedKey,
+                sessionX25519Key.PublicKey,
+                this.SignatureKey,
+                _whisperRpc,
+                _ethereumRpc,
+                _messageHandlerResolverBuilder);
+
+            if (OriginatorSessionsDict.TryAdd(session.SessionId, session))
+            {
+                await session.StartAsync();
+                return session;
+            }
+
+            return null;
         }
 
         public static VaspClient Create(
@@ -84,9 +151,11 @@ namespace OpenVASP.Tests.Client
             string handshakePrivateKeyHex,
             string signaturePrivateKeyHex,
             IEthereumRpc nodeClientEthereumRpc,
-            IWhisperRpc nodeClientWhisperRpc)
+            IWhisperRpc nodeClientWhisperRpc,
+            IEnsProvider ensProvider,
+            MessageHandlerResolverBuilder messageHandlerResolverBuilder)
         {
-            var vaspClient = new VaspClient(nodeClientEthereumRpc, nodeClientWhisperRpc);
+            var vaspClient = new VaspClient(nodeClientEthereumRpc, nodeClientWhisperRpc, ensProvider, messageHandlerResolverBuilder);
 
             vaspClient._vaspContractInfo = vaspContractInfo;
             vaspClient.VaspInfo = vaspInfo;
@@ -102,6 +171,8 @@ namespace OpenVASP.Tests.Client
 
         public void Dispose()
         {
+            _cancellationTokenSource.Cancel();
+
             if (TransferDispatch != null)
                 foreach (var d in TransferDispatch.GetInvocationList())
                     TransferDispatch -= (d as Func<TransferDispatchMessage, TransferConfirmationMessage>);
@@ -121,7 +192,10 @@ namespace OpenVASP.Tests.Client
 
         public IReadOnlyList<VaspSession> GetActiveSessions()
         {
-            throw new NotImplementedException();
+            var beneficiarySessions = BeneficiarySessionsDict.Values.Cast<VaspSession>();
+            var originatorSessions = OriginatorSessionsDict.Values.Cast<VaspSession>();
+
+            return beneficiarySessions.Concat(originatorSessions).ToImmutableArray();
         }
     }
 }
