@@ -4,5 +4,7 @@
     {
         IEthereumRpc EthereumRpc { get; }
         IWhisperRpc WhisperRpc { get; set; }
+
+        ITransportClient TransportClient { get; set; }
     }
 }

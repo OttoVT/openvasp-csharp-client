@@ -48,16 +48,11 @@ namespace OpenVASP.Tests.Client
             return filter;
         }
 
-        public async Task<string> SendMessageAsync(MessageEnvelope messageEnvelope, MessageBase message)
+        public async Task<string> SendMessageAsync(string topic, string encryptionKey, EncryptionType encryptionType, string payload)
         {
-            //var testid = await _web3.Shh.KeyPair.NewKeyPair.SendRequestAsync();
-            //var pubKey = await _web3.Shh.KeyPair.GetPublicKey.SendRequestAsync(testid);
-
-            var payload = _messageFormatter.GetPayload(message);
-
             var messageInput = new MessageInput()
             {
-                Topic = messageEnvelope.Topic.EnsureHexPrefix(),
+                Topic = topic.EnsureHexPrefix(),
                 //Sig = messageEnvelope.Signature,
                 Payload = payload,
                 //Find a way to calculate it
@@ -66,18 +61,18 @@ namespace OpenVASP.Tests.Client
                 Ttl = 300,
             };
 
-            switch (messageEnvelope.EncryptionType)
+            switch (encryptionType)
             {
                 case EncryptionType.Assymetric:
-                    messageInput.PubKey = messageEnvelope.EncryptionKey;
+                    messageInput.PubKey = encryptionKey;
                     break;
                 case EncryptionType.Symmetric:
-                    messageInput.SymKeyID = messageEnvelope.EncryptionKey;
+                    messageInput.SymKeyID = encryptionKey;
                     break;
                 default:
                     throw new ArgumentException(
-                        $"Current Encryption type {messageEnvelope.EncryptionType} is not supported.",
-                        nameof(messageEnvelope.EncryptionType));
+                        $"Current Encryption type {encryptionType} is not supported.",
+                        nameof(encryptionType));
             }
 
             var messageHash = await _web3.Shh.Post.SendRequestAsync(messageInput);
@@ -103,7 +98,7 @@ namespace OpenVASP.Tests.Client
         {
             var messages = await GetMessagesAsync(messageFilter);
 
-            if (messages == null || messages.Length == 0)
+            if (messages == null || messages.Count == 0)
             {
                 return new MessageBase[] { };
             }
@@ -118,28 +113,35 @@ namespace OpenVASP.Tests.Client
             return serializedMessages;
         }
 
-        private async Task<ReceivedMessage[]> GetMessagesAsync(string source)
+        public async Task<IReadOnlyCollection<ReceivedMessage>> GetMessagesAsync(string source)
         {
-            var messages = await _web3.Shh.MessageFilter.GetFilterMessages.SendRequestAsync(source);
-
-            if (messages == null || messages.Length == 0)
+            try
             {
-                return new ReceivedMessage[] { };
-            }
+                var messages = await _web3.Shh.MessageFilter.GetFilterMessages.SendRequestAsync(source);
 
-            var receivedMessages = messages.Select(x => new ReceivedMessage()
-            {
-                MessageEnvelope = new MessageEnvelope()
+                if (messages == null || messages.Length == 0)
                 {
-                    Topic = x.Topic,
-                    EncryptionType = EncryptionType.Assymetric,
-                    EncryptionKey = x.RecipientPublicKey,
-                    Signature = x.Sig
-                },
-                Payload = x.Payload
-            }).ToArray();
+                    return new ReceivedMessage[] { };
+                }
 
-            return receivedMessages;
+                var receivedMessages = messages.Select(x => new ReceivedMessage()
+                {
+                    MessageEnvelope = new MessageEnvelope()
+                    {
+                        Topic = x.Topic,
+                        EncryptionType = EncryptionType.Assymetric,
+                        EncryptionKey = x.RecipientPublicKey,
+                        Signature = x.Sig
+                    },
+                    Payload = x.Payload
+                }).ToArray();
+
+                return receivedMessages;
+            }
+            catch (Exception e)
+            {
+                return new ReceivedMessage[]{};
+            }
         }
     }
 }

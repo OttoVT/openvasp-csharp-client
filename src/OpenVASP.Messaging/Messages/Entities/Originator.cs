@@ -14,10 +14,10 @@
             Name = name;
             VAAN = vaan;
             PostalAddress = postalAddress;
-            PlaceOfBirth = placeOfBirth;
-            NaturalPersonId = naturalPersonId;
-            JuridicalPersonId = juridicalPersonId;
-            BIC = bic;
+            PlaceOfBirth = placeOfBirth ?? default;
+            NaturalPersonId = naturalPersonId ?? new NaturalPersonId[] {};
+            JuridicalPersonId = juridicalPersonId ?? new JuridicalPersonId[] {};
+            BIC = bic ?? string.Empty;
         }
 
         public string Name { get; set; }

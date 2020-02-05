@@ -33,7 +33,7 @@ namespace OpenVASP.Whisper.Mappers
                 PostalAddress = MapPostalAddressToProto(vaspInfo.PostalAddress),
                 VaspIdentity = vaspInfo.VaspIdentity,
                 VaspPubkey = vaspInfo.VaspPublickKey,
-                Bic = vaspInfo.BIC
+                Bic = vaspInfo.BIC ?? ""
             };
 
             var juridicalPeronsIds = vaspInfo
@@ -234,7 +234,7 @@ namespace OpenVASP.Whisper.Mappers
                 MapPlaceOfBirthFromProto(vaspInfo.PlaceOfBirth),
                 vaspInfo.NaturalPersonId?.Select<ProtoNaturalPersonId, NaturalPersonId>(x => MapNaturalPersonIdFromProto(x)).ToArray(),
                 vaspInfo.JuridicalPersonId?.Select<ProtoJuridicalPersonId, JuridicalPersonId>(x => MapJuridicalPersonIdFromProto(x)).ToArray(),
-                vaspInfo.Bic);
+                string.IsNullOrEmpty(vaspInfo.Bic) ? null : vaspInfo.Bic);
 
             return proto;
         }

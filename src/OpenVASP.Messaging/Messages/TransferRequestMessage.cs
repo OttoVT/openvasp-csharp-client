@@ -1,4 +1,5 @@
-﻿using OpenVASP.Messaging.Messages.Entities;
+﻿using System;
+using OpenVASP.Messaging.Messages.Entities;
 
 namespace OpenVASP.Messaging.Messages
 {
@@ -13,6 +14,21 @@ namespace OpenVASP.Messaging.Messages
         {
             MessageType = MessageType.TransferRequest;
             Message = message;
+            Originator = originator;
+            Beneficiary = beneficiary;
+            Transfer = transfer;
+            VASP = vasp;
+        }
+
+        public TransferRequestMessage(
+            string sessionId,
+            Originator originator,
+            Beneficiary beneficiary,
+            TransferRequest transfer,
+            VaspInformation vasp)
+        {
+            MessageType = MessageType.TransferRequest;
+            Message = new Message(Guid.NewGuid().ToString(), sessionId, "1");
             Originator = originator;
             Beneficiary = beneficiary;
             Transfer = transfer;

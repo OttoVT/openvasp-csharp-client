@@ -28,6 +28,7 @@ namespace OpenVASP.Tests.Client
                 vaspContractInfo.Address,
                 placeOfBirth,
                 naturalPersonIds,
+                null,
                 null);
 
             return (vaspInformation, vaspContractInfo);
@@ -45,16 +46,28 @@ namespace OpenVASP.Tests.Client
                 vaspContractInfo.Address,
                 null,
                 null,
-                juridicalIds);
+                juridicalIds,
+                null);
 
             return (vaspInformation, vaspContractInfo);
         }
 
-        public Task<(VaspInformation VaspInformation, VaspContractInfo VaspContractInfo)> CreateForBankAsync(
+        public async Task<(VaspInformation VaspInformation, VaspContractInfo VaspContractInfo)> CreateForBankAsync(
             string vaspSmartContractAddress,
-            IEnumerable<char> settingsBic)
+            string settingsBic)
         {
-            throw new NotImplementedException();
+            var vaspContractInfo = await _nodeClientEthereumRpc.GetVaspContractInfoAync(vaspSmartContractAddress);
+            var vaspInformation = new VaspInformation(
+                vaspContractInfo.Name,
+                vaspSmartContractAddress,
+                vaspContractInfo.HandshakeKey,//Ensure it is correct
+                vaspContractInfo.Address,
+                null,
+                null,
+                null,
+                settingsBic);
+
+            return (vaspInformation, vaspContractInfo);
         }
 
         public static Task<(VaspInformation VaspInformation, VaspContractInfo VaspContractInfo)> CreateForNaturalPersonAsync(
@@ -82,9 +95,11 @@ namespace OpenVASP.Tests.Client
         public static Task<(VaspInformation VaspInformation, VaspContractInfo VaspContractInfo)> CreateForBankAsync(
             IEthereumRpc ethereumRpc,
             string vaspSmartContractAddress,
-            IEnumerable<char> settingsBic)
+            string settingsBic)
         {
-            throw new NotImplementedException();
+            var vaspInformationBuilder = new VaspInformationBuilder(ethereumRpc);
+
+            return vaspInformationBuilder.CreateForBankAsync(vaspSmartContractAddress, settingsBic);
         }
     }
 }

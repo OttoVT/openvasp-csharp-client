@@ -18,7 +18,7 @@ namespace OpenVASP.Tests
     public class MessageReceiverSenderTest
     {
         //This test proves that whisper works correctly for geth
-        [Fact]
+        [Fact(Skip = "Disabled")]
         public async Task WhisperFlowTestAsync()
         {
             var gethUrl = "";

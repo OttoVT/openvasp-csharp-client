@@ -14,6 +14,7 @@ namespace OpenVASP.Messaging.Messages
 
         public TerminationMessage(string sessionId, TerminationMessageCode messageCode, VaspInformation vasp)
         {
+            MessageType = MessageType.Termination;
             Message = new Message(
                 Guid.NewGuid().ToString(),
                 sessionId,
@@ -25,10 +26,18 @@ namespace OpenVASP.Messaging.Messages
 
         public VaspInformation VASP { get; private set; }
 
+        public TerminationMessageCode GetMessageCode()
+        {
+            Enum.TryParse<TerminationMessageCode>(this.Message.MessageCode, out var result);
+
+            return result;
+        }
+
         public static string GetMessageCode(TerminationMessageCode messageCode)
         {
             return messageCode.ToString();
         }
+
         public enum TerminationMessageCode
         {
             SessionClosedTransferOccured = 1,

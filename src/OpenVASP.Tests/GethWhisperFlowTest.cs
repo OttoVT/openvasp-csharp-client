@@ -48,7 +48,7 @@ namespace OpenVASP.Tests
         }
 
         //This test proves that whisper works correctly for geth
-        [Fact]
+        [Fact(Skip = "Disabled")]
         public async Task WhisperFlowTestAsync()
         {
             var geth = "http://144.76.25.187:8025";
@@ -210,7 +210,7 @@ namespace OpenVASP.Tests
         }
 
         //TODO: SPlit in originator and beneficiary sides
-        [Fact]
+        [Fact(Skip = "Disabled")]
         public async Task WhisperSessionCreationTestAsync()
         {
             //var geth = "";

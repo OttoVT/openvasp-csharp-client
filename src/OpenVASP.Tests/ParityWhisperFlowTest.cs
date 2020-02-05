@@ -11,12 +11,11 @@ namespace OpenVASP.Tests
     public class ParityWhisperFlowTest
     {
         //This test proves that whisper does not work correctly for parity
-        [Fact]
+        [Fact(Skip = "Disabled")]
         public async Task WhisperFlowTestAsync()
         {
             var ethereumShhRpcClient = new EthereumShhRpcClient("", new HttpClient());
             var ethKey = EthECKey.GenerateKey();
-
 
             try
             {
@@ -36,7 +35,6 @@ namespace OpenVASP.Tests
 
                     await Task.Delay(10000);
                 }
-
             }
             catch (Exception e)
             {

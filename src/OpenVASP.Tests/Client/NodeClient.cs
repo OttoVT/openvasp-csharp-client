@@ -4,5 +4,6 @@
     {
         public IEthereumRpc EthereumRpc { get; set; }
         public IWhisperRpc WhisperRpc { get; set; }
+        public ITransportClient TransportClient { get; set; }
     }
 }

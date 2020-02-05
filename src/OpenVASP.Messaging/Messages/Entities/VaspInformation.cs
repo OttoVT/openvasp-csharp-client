@@ -12,7 +12,7 @@ namespace OpenVASP.Messaging.Messages.Entities
             PlaceOfBirth placeOfBirth, 
             NaturalPersonId[] naturalPersonIds, 
             JuridicalPersonId[] juridicalPersonIds, 
-            string bic = "")
+            string bic)
         {
             Name = name;
             VaspIdentity = vaspIdentity;

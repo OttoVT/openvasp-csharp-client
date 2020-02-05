@@ -10,15 +10,15 @@ namespace OpenVASP.CSharpClient
     {
         private readonly string _topicA;
         private readonly string _sessionId;
-        private readonly X25519Key _key;
+        private readonly ECDH_Key _key;
         private readonly VaspContractInfo _beneficiarVaspContractInfo;
         private readonly VaspInformation _originatorVaspInformation;
         private readonly string _sharedKey;
 
         public Session(
             string topicA,
-            string sessionId, 
-            X25519Key key,
+            string sessionId,
+            ECDH_Key key,
             VaspContractInfo beneficiarVaspContractInfo, 
             VaspInformation originatorVaspInformation)
         {
@@ -57,10 +57,10 @@ namespace OpenVASP.CSharpClient
     {
         private Task _worker;
         private VaspInformation _beneficiaryVaspInformation;
-        private X25519Key _handshakeKey;
+        private ECDH_Key _handshakeKey;
         private string _signingKey;
 
-        public BeneficiaryVaspListener(VaspInformation beneficiaryVaspInformation, X25519Key handshakeKey, string signingKey)
+        public BeneficiaryVaspListener(VaspInformation beneficiaryVaspInformation, ECDH_Key handshakeKey, string signingKey)
         {
             this._beneficiaryVaspInformation = beneficiaryVaspInformation;
             this._handshakeKey = handshakeKey;
@@ -90,13 +90,13 @@ namespace OpenVASP.CSharpClient
 
             await AuthorizeBeneficiaryVasp(beneficiarVaspContractInfo);
             await ValidateTransferInstruction(transferInstruction);
-            (string topicA, string sessionId, X25519Key key) = await GenerateHeadersAndKey();
+            (string topicA, string sessionId, ECDH_Key key) = await GenerateHeadersAndKey();
             var session = new Session(topicA, sessionId, key, beneficiarVaspContractInfo, originatorVaspInformation);
 
             return session;
         }
 
-        private async Task<(string, string, X25519Key)> GenerateHeadersAndKey()
+        private async Task<(string, string, ECDH_Key)> GenerateHeadersAndKey()
         {
             throw new NotImplementedException();
         }

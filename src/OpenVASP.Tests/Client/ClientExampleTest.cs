@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Nethereum.Hex.HexConvertors.Extensions;
 using Nethereum.Signer;
@@ -8,9 +10,11 @@ using OpenVASP.CSharpClient.Cryptography;
 using OpenVASP.Messaging;
 using OpenVASP.Messaging.Messages;
 using OpenVASP.Messaging.Messages.Entities;
+using OpenVASP.Tests.Client.Sessions;
 using OpenVASP.Whisper;
 using Xunit;
 using Xunit.Abstractions;
+using Transaction = OpenVASP.Messaging.Messages.Entities.Transaction;
 
 namespace OpenVASP.Tests.Client
 {
@@ -18,6 +22,8 @@ namespace OpenVASP.Tests.Client
     {
         private readonly ITestOutputHelper _testOutputHelper;
         private readonly IEnsProvider _fakeEnsProvider;
+        private readonly WhisperSignService _signService;
+        private readonly WhisperRpc _whisperRpc;
 
         public INodeClient NodeClient { get; set; }
 
@@ -27,19 +33,36 @@ namespace OpenVASP.Tests.Client
         {
             this._fakeEnsProvider = new FakeEnsProvider();
             this._testOutputHelper = testOutputHelper;
+            this._signService = new WhisperSignService();
+            this._whisperRpc = new WhisperRpc(new Web3(""), new WhisperMessageFormatter());
+
             NodeClient = new NodeClient()
             {
                 EthereumRpc = new EthereumRpc(new Web3("")),
-                WhisperRpc = new WhisperRpc(new Web3(  ""), new WhisperMessageFormatter())
+                WhisperRpc =_whisperRpc,
+                TransportClient = new TransportClient(_whisperRpc, _signService, new WhisperMessageFormatter())
             };
             Settings = new VaspTestSettings()
             {
-                PersonHandshakePrivateKeyHex = "0xc0e45195b43ef54c3a7ce526c3d2e482e4f73b3c5816038f8391ef31e2540d50",
+                PersonHandshakePrivateKeyHex =    "0xe7578145d518e5272d660ccfdeceedf2d55b90867f2b7a6e54dc726662aebac2",
                 PersonSignaturePrivateKeyHex = "0x790a3437381e0ca44a71123d56dc64a6209542ddd58e5a56ecdb13134e86f7c6",
                 VaspSmartContractAddressPerson = "0x6befaf0656b953b188a0ee3bf3db03d07dface61",
                 VaspSmartContractAddressJuridical = "0x08FDa931D64b17c3aCFfb35C1B3902e0BBB4eE5C",
+                VaspSmartContractAddressBank = "0x4Dd7E1E2d5640a06ed81f155f171012F1CD48DAA",
                 JuridicalSignaturePrivateKeyHex = "0x6854a4e4f8945d9fa215646a820fe9a866b5635ffc7cfdac29711541f7b913f9",
-                JuridicalHandshakePrivateKeyHex = "0x909c9837f32eff4843c01f3a7f85e91c630845dc363aaae78840a39e04918152",
+                JuridicalHandshakePrivateKeyHex = "0x502eb0b1a40d5b788b2395394bc6ae47adae61e9f0a9584c4700132914a8ed04",
+                BankHandshakePrivateKeyHex = "0x909aa47d973d34adf9bc44d6e1d755f89b9ca2972da77966336972a602a243db",
+                BankSignaturePrivateKeyHex = "0x9b3aaa8e802a1d42cf112dfc0e035440c451102d358163d345f6b3968415b077",
+                PlaceOfBirth = new PlaceOfBirth(DateTime.UtcNow, "Town X", Country.List["DE"]),
+                NaturalPersonIds = new NaturalPersonId[]
+                {
+                    new NaturalPersonId("ID", NaturalIdentificationType.PassportNumber, Country.List["DE"]), 
+                },
+                Bic = "AUZDDEM1XXX",
+                JuridicalIds = new JuridicalPersonId[]
+                {
+                    new JuridicalPersonId("ID", JuridicalIdentificationType.BankPartyIdentification, Country.List["DE"]),
+                },
             };
         }
 
@@ -61,7 +84,8 @@ namespace OpenVASP.Tests.Client
                 NodeClient.EthereumRpc,
                 NodeClient.WhisperRpc,
                 _fakeEnsProvider,
-                new MessageHandlerResolverBuilder());
+                _signService,
+                NodeClient.TransportClient);
 
             // VASP paramaters must be derived from smart contract
             Assert.NotNull(vasp.VaspInfo.Name);
@@ -93,7 +117,8 @@ namespace OpenVASP.Tests.Client
                 NodeClient.EthereumRpc,
                 NodeClient.WhisperRpc,
                 _fakeEnsProvider,
-                new MessageHandlerResolverBuilder());
+                _signService,
+                NodeClient.TransportClient);
 
             // VASP paramaters must be derived from smart contract
             Assert.NotNull(vasp.VaspInfo.Name);
@@ -124,7 +149,8 @@ namespace OpenVASP.Tests.Client
                 NodeClient.EthereumRpc,
                 NodeClient.WhisperRpc,
                 _fakeEnsProvider,
-                new MessageHandlerResolverBuilder());
+                _signService,
+                NodeClient.TransportClient);
 
             // VASP paramaters must be derived from smart contract
             Assert.NotNull(vasp.VaspInfo.Name);
@@ -143,7 +169,7 @@ namespace OpenVASP.Tests.Client
         public async Task CreateVaspForBank()
         {
             var signature = new EthECKey(Settings.PersonSignaturePrivateKeyHex);
-            var handshake = X25519Key.ImportKey(Settings.PersonHandshakePrivateKeyHex);
+            var handshake = ECDH_Key.ImportKey(Settings.PersonHandshakePrivateKeyHex);
 
             var signPub = signature.GetPubKey().ToHex(prefix: true);
             var handshakePub = handshake.PublicKey;
@@ -161,7 +187,8 @@ namespace OpenVASP.Tests.Client
                 NodeClient.EthereumRpc,
                 NodeClient.WhisperRpc,
                 _fakeEnsProvider,
-                new MessageHandlerResolverBuilder());
+                _signService,
+                NodeClient.TransportClient);
 
             // VASP paramaters must be derived from smart contract
             Assert.NotNull(vasp.VaspInfo.Name);
@@ -179,6 +206,9 @@ namespace OpenVASP.Tests.Client
         [Fact]
         public async Task CreateSessionBetweenVASPs()
         {
+            int sessionTerminationCounter = 0;
+            SessionTermination sessionTerminationDelegate = @event => { sessionTerminationCounter++; };
+
             (VaspInformation vaspInfoPerson, VaspContractInfo vaspContractInfoPerson) = await VaspInformationBuilder.CreateForNaturalPersonAsync(
                 NodeClient.EthereumRpc,
                 Settings.VaspSmartContractAddressPerson,
@@ -193,7 +223,8 @@ namespace OpenVASP.Tests.Client
                 NodeClient.EthereumRpc,
                 NodeClient.WhisperRpc,
                 _fakeEnsProvider,
-                new MessageHandlerResolverBuilder());
+                _signService,
+                NodeClient.TransportClient);
 
             (VaspInformation vaspInfoJuridical, VaspContractInfo vaspContractInfoJuridical) = await VaspInformationBuilder.CreateForJuridicalPersonAsync(
                 NodeClient.EthereumRpc,
@@ -208,43 +239,85 @@ namespace OpenVASP.Tests.Client
                 NodeClient.EthereumRpc,
                 NodeClient.WhisperRpc,
                 _fakeEnsProvider,
-                new MessageHandlerResolverBuilder());
+                _signService,
+                NodeClient.TransportClient);
 
+            var originatorVaan =  VirtualAssetssAccountNumber.Create(   vaspInfoPerson.GetVaspCode(), "524ee3fb082809");
             var beneficiaryVaan = VirtualAssetssAccountNumber.Create(vaspInfoJuridical.GetVaspCode(), "524ee3fb082809");
 
             IVaspMessageHandler messageHandler = new VaspMessageHandlerCallbacks(
-                sessionRequest => Task.FromResult((SessionReplyMessage)null),
-                request => Task.FromResult((TransferReplyMessage)null),
-                dispatch => Task.FromResult((TransferConfirmationMessage)null));
+                (vaspInfo) =>
+                {
+                    return Task.FromResult(true);
+                },
+                (request, currentSession) =>
+                {
+                    var message = new TransferReplyMessage(currentSession.SessionId, TransferReplyMessage.TransferReplyMessageCode.TransferAccepted,
+                        default, 
+                        default, 
+                        new TransferReply(
+                            request.Transfer.VirtualAssetType, 
+                            request.Transfer.TransferType, 
+                            request.Transfer.Amount, 
+                            "0x0"),
+                        request.VASP );
+
+                    return Task.FromResult(message);
+                },
+                (dispatch, currentSession) =>
+                {
+                    var message = new TransferConfirmationMessage(currentSession.SessionId, 
+                        TransferConfirmationMessage.TransferConfirmationMessageCode.TransferConfirmed,
+                        default,
+                        default,
+                        dispatch.Transfer,
+                        dispatch.Transaction,
+                        dispatch.VASP);
+
+                    return Task.FromResult(message);
+                });
 
             //originator.RunListener(messageHandler);
             beneficiary.RunListener(messageHandler);
+
+            originator.SessionTerminated += sessionTerminationDelegate;
+            beneficiary.SessionTerminated += sessionTerminationDelegate;
 
             // change enum to string and add constants
             //beneficiary.TransferRequest += request => new TransferReply(VirtualAssetType.ETH, TransferType.BlockchainTransfer, "10", "1223");
             //beneficiary.TransferDispatch += message => new TransferConfirmationMessage();
 
-            VaspSession session = await originator.CreateSessionAsync(beneficiaryVaan);
+            var session = await originator.CreateSessionAsync("Test van der Test", originatorVaan, beneficiaryVaan);
 
-            //TransferReply transferReply1 = await session.TransferRequestAsync();
+            var transferReply = await session.TransferRequestAsync(new TransferInstruction()
+            {
+                VirtualAssetTransfer = new VirtualAssetTransfer()
+                {
+                    TransferType = TransferType.BlockchainTransfer,
+                    VirtualAssetType = VirtualAssetType.ETH,
+                    TransferAmount = "1000000000000000000"
+                }
+            });
             //TransferReply transferReply2 = await session.TransferRequestAsync();
 
-            //TransferConfirmationMessage transferConformation1 = await session.TransferDispatchAsync();
+            var transferConformation = 
+                await session.TransferDispatchAsync(transferReply.Transfer, new Transaction("0xtxhash", DateTime.UtcNow, "0x0...a"));
             //TransferConfirmationMessage transferConformation2 = await session.TransferDispatchAsync();
 
-            //Assert.Equal(1, originator.GetActiveSessions().Count);
-            //Assert.True(originator.GetActiveSessions().First() is OriginatorSession);
+            Assert.Equal(1, originator.GetActiveSessions().Count);
+            Assert.True(originator.GetActiveSessions().First() is OriginatorSession);
 
-            //Assert.Equal(1, beneficiary.GetActiveSessions().Count);
-            //Assert.True(beneficiary.GetActiveSessions().First() is BeneficiarySession);
+            Assert.Equal(1, beneficiary.GetActiveSessions().Count);
+            Assert.True(beneficiary.GetActiveSessions().First() is BeneficiarySession);
 
-            await session.TerminateAsync();
-            await Task.Delay(60000);
+            await session.TerminateAsync(TerminationMessage.TerminationMessageCode.SessionClosedTransferOccured);
+            session.Wait();
             originator.Dispose();
             beneficiary.Dispose();
 
+            Assert.Equal(2, sessionTerminationCounter);
+
             _testOutputHelper.WriteLine("End of test");
         }
-
     }
 }

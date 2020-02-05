@@ -1,38 +1,40 @@
 ﻿using System;
 using System.Threading.Tasks;
 using OpenVASP.Messaging.Messages;
+using OpenVASP.Messaging.Messages.Entities;
+using OpenVASP.Tests.Client.Sessions;
 
 namespace OpenVASP.Tests.Client
 {
     public class VaspMessageHandlerCallbacks : IVaspMessageHandler
     {
-        private readonly Func<TransferRequestMessage, Task<TransferReplyMessage>> _transferRequest;
-        private readonly Func<TransferDispatchMessage, Task<TransferConfirmationMessage>> _transferDispatch;
-        private readonly Func<SessionRequestMessage, Task<SessionReplyMessage>> _sessionRequest;
+        private readonly Func<TransferRequestMessage, VaspSession, Task<TransferReplyMessage>> _transferRequest;
+        private readonly Func<TransferDispatchMessage, VaspSession, Task<TransferConfirmationMessage>> _transferDispatch;
+        private readonly Func<VaspInformation, Task<bool>> _sessionAuthorizeRequest;
 
         public VaspMessageHandlerCallbacks(
-            Func<SessionRequestMessage, Task<SessionReplyMessage>> sessionRequest,
-            Func<TransferRequestMessage, Task<TransferReplyMessage>> transferRequest,
-            Func<TransferDispatchMessage, Task<TransferConfirmationMessage>> transferDispatch)
+            Func<VaspInformation, Task<bool>> sessionAuthorizeRequest,
+            Func<TransferRequestMessage, VaspSession, Task<TransferReplyMessage>> transferRequest,
+            Func<TransferDispatchMessage, VaspSession, Task<TransferConfirmationMessage>> transferDispatch)
         {
-            _sessionRequest= sessionRequest ?? throw new ArgumentNullException(nameof(sessionRequest));
+            _sessionAuthorizeRequest = sessionAuthorizeRequest ?? throw new ArgumentNullException(nameof(sessionAuthorizeRequest));
             _transferRequest = transferRequest ?? throw new ArgumentNullException(nameof(transferRequest));
             _transferDispatch = transferDispatch ?? throw new ArgumentNullException(nameof(transferDispatch));
         }
 
-        public Task<SessionReplyMessage> SessionRequestHandlerAsync(SessionRequestMessage request)
+        Task<bool> IVaspMessageHandler.AuthorizeSessionRequestAsync(VaspInformation request)
         {
-            return _sessionRequest?.Invoke(request);
+            return _sessionAuthorizeRequest.Invoke(request);
         }
 
-        public Task<TransferReplyMessage> TransferRequestHandlerAsync(TransferRequestMessage request)
+        Task<TransferReplyMessage> IVaspMessageHandler.TransferRequestHandlerAsync(TransferRequestMessage request, VaspSession vaspSession)
         {
-            return _transferRequest?.Invoke(request);
+            return _transferRequest.Invoke(request, vaspSession);
         }
 
-        public Task<TransferConfirmationMessage> TransferDispatchHandlerAsync(TransferDispatchMessage request)
+        Task<TransferConfirmationMessage> IVaspMessageHandler.TransferDispatchHandlerAsync(TransferDispatchMessage request, VaspSession vaspSession)
         {
-            return _transferDispatch?.Invoke(request);
+            return _transferDispatch.Invoke(request, vaspSession);
         }
     }
 }
