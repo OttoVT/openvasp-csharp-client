@@ -138,7 +138,6 @@ namespace OpenVASP.Tests.Client
 
         public async Task<OriginatorSession> CreateSessionAsync(
             Originator originator,
-            VirtualAssetssAccountNumber originatorVaan,
             VirtualAssetssAccountNumber beneficiaryVaan)
         {
             string counterPartyVaspContractAddress = await _ensProvider.GetContractAddressByVaspCodeAsync(beneficiaryVaan.VaspCode);
@@ -150,7 +149,6 @@ namespace OpenVASP.Tests.Client
                 originator,
                 this._vaspContractInfo,
                 this.VaspInfo,
-                originatorVaan,
                 beneficiaryVaan,
                 contractInfo.SigningKey,
                 contractInfo.HandshakeKey,

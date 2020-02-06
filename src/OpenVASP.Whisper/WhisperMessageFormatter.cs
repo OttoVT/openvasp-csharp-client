@@ -10,19 +10,6 @@ namespace OpenVASP.Whisper
 {
     public class WhisperMessageFormatter : IMessageFormatter
     {
-        public MessageEnvelope GetEnvelope(MessageBase messageBase)
-        {
-            var messageEnvelope = new MessageEnvelope()
-            {
-                EncryptionType = messageBase.MessageEnvelope.EncryptionType,
-                Topic = messageBase.MessageEnvelope.Topic,
-                SigningKey = messageBase.MessageEnvelope.SigningKey,
-                EncryptionKey = messageBase.MessageEnvelope.EncryptionKey
-            };
-
-            return messageEnvelope;
-        }
-
         public string GetPayload(MessageBase messageBase)
         {
             var wrapper = new ProtoMessageWrapper();

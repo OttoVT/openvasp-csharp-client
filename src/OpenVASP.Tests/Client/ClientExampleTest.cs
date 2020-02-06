@@ -34,11 +34,11 @@ namespace OpenVASP.Tests.Client
             this._fakeEnsProvider = new FakeEnsProvider();
             this._testOutputHelper = testOutputHelper;
             this._signService = new WhisperSignService();
-            this._whisperRpc = new WhisperRpc(new Web3("http://144.76.25.187:8025"), new WhisperMessageFormatter());
+            this._whisperRpc = new WhisperRpc(new Web3(), new WhisperMessageFormatter());
 
             NodeClient = new NodeClient()
             {
-                EthereumRpc = new EthereumRpc(new Web3("http://40.85.87.56:8545")),
+                EthereumRpc = new EthereumRpc(new Web3()),
                 WhisperRpc =_whisperRpc,
                 TransportClient = new TransportClient(_whisperRpc, _signService, new WhisperMessageFormatter())
             };
@@ -301,7 +301,7 @@ namespace OpenVASP.Tests.Client
                     {
                         new NaturalPersonId("Id", NaturalIdentificationType.NationalIdentityNumber, Country.List["DE"]), 
                     });
-            var session = await originator.CreateSessionAsync(originatorDoc, originatorVaan, beneficiaryVaan);
+            var session = await originator.CreateSessionAsync(originatorDoc, beneficiaryVaan);
 
             var transferReply = await session.TransferRequestAsync(new TransferInstruction()
             {

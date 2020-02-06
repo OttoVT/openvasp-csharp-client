@@ -35,7 +35,7 @@ namespace OpenVASP.Messaging.Messages
 
         public static string GetMessageCode(TerminationMessageCode messageCode)
         {
-            return messageCode.ToString();
+            return ((int)messageCode).ToString();
         }
 
         public enum TerminationMessageCode

@@ -54,7 +54,7 @@ namespace OpenVASP.Messaging.Messages
 
         public static string GetMessageCode(TransferConfirmationMessageCode messageCode)
         {
-            return messageCode.ToString();
+            return ((int)messageCode).ToString();
         }
         public enum TransferConfirmationMessageCode
         {

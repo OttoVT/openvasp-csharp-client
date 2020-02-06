@@ -95,13 +95,6 @@ namespace OpenVASP.Tests
                     handshake,
                     vaspSender)
                 {
-                    MessageEnvelope = new MessageEnvelope()
-                    {
-                        Topic = beneficiaryVaspCodeTopic,
-                        EncryptionKey = receiverHandshakePubKey,
-                        EncryptionType = EncryptionType.Assymetric,
-                        SigningKey = receiverSignPubKey
-                    },
                     Comment = "This is test to receiver message"
                 };
             }
@@ -124,13 +117,6 @@ namespace OpenVASP.Tests
                     handshake,
                     vaspReceiver)
                 {
-                    MessageEnvelope = new MessageEnvelope()
-                    {
-                        Topic = beneficiaryVaspCodeTopic,
-                        EncryptionKey = receiverHandshakePubKey,
-                        EncryptionType = EncryptionType.Assymetric,
-                        SigningKey = receiverSignPubKey
-                    },
                     Comment = "This is test to receiver message"
                 };
             }
@@ -157,9 +143,9 @@ namespace OpenVASP.Tests
 
             var payload = whisperFormatter.GetPayload(requestToReceiver);
             var sentHash1 = await whisperClient.SendMessageAsync(
-                requestToReceiver.MessageEnvelope.Topic,
-                requestToReceiver.MessageEnvelope.EncryptionKey,
-                requestToReceiver.MessageEnvelope.EncryptionType,
+                beneficiaryVaspCodeTopic,
+                receiverHandshakePubKey,
+                EncryptionType.Assymetric,
                 payload);
 
             ReceivedMessage shhMessage = null;

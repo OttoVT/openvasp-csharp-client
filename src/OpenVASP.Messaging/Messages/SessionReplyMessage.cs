@@ -29,7 +29,7 @@ namespace OpenVASP.Messaging.Messages
 
         public static string GetMessageCode(SessionReplyMessageCode messageCode)
         {
-            return messageCode.ToString();
+            return ((int)messageCode).ToString();
         }
         public enum SessionReplyMessageCode
         {

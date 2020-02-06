@@ -48,7 +48,7 @@ namespace OpenVASP.Messaging.Messages
 
         public static string GetMessageCode(TransferReplyMessageCode messageCode)
         {
-            return messageCode.ToString();
+            return ((int)messageCode).ToString();
         }
         public enum TransferReplyMessageCode
         {

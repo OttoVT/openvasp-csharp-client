@@ -109,10 +109,6 @@ namespace OpenVASP.Tests
         {
             Assert.NotNull(response);
 
-            Assert.Equal(request.MessageEnvelope.Topic, response.MessageEnvelope.Topic);
-            Assert.Equal(request.MessageEnvelope.EncryptionType, response.MessageEnvelope.EncryptionType);
-            Assert.Equal(request.MessageEnvelope.EncryptionKey, response.MessageEnvelope.EncryptionKey);
-
             Assert.Equal(request.Comment, response.Comment);
 
             Assert.Equal(request.Message.SessionId, response.Message.SessionId);
@@ -145,10 +141,6 @@ namespace OpenVASP.Tests
         private void AssertTransferDispatch(TransferDispatchMessage response, TransferDispatchMessage request)
         {
             Assert.NotNull(response);
-
-            Assert.Equal(request.MessageEnvelope.Topic, response.MessageEnvelope.Topic);
-            Assert.Equal(request.MessageEnvelope.EncryptionType, response.MessageEnvelope.EncryptionType);
-            Assert.Equal(request.MessageEnvelope.EncryptionKey, response.MessageEnvelope.EncryptionKey);
 
             Assert.Equal(request.Comment, response.Comment);
 
@@ -193,10 +185,6 @@ namespace OpenVASP.Tests
         private void AssertTransferConfirmation(TransferConfirmationMessage response, TransferConfirmationMessage request)
         {
             Assert.NotNull(response);
-
-            Assert.Equal(request.MessageEnvelope.Topic, response.MessageEnvelope.Topic);
-            Assert.Equal(request.MessageEnvelope.EncryptionType, response.MessageEnvelope.EncryptionType);
-            Assert.Equal(request.MessageEnvelope.EncryptionKey, response.MessageEnvelope.EncryptionKey);
 
             Assert.Equal(request.Comment, response.Comment);
 
@@ -252,11 +240,6 @@ namespace OpenVASP.Tests
         {
             Assert.NotNull(response);
 
-            Assert.Equal(request.MessageEnvelope.Topic, response.MessageEnvelope.Topic);
-            //Assert.Equal(request.MessageEnvelope.Signature, response.MessageEnvelope.Signature);
-            Assert.Equal(request.MessageEnvelope.EncryptionType, response.MessageEnvelope.EncryptionType);
-            Assert.Equal(request.MessageEnvelope.EncryptionKey, response.MessageEnvelope.EncryptionKey);
-
             Assert.Equal(request.HandShake.TopicA, response.HandShake.TopicA);
             Assert.Equal(request.HandShake.EcdhPubKey, response.HandShake.EcdhPubKey);
 
@@ -295,10 +278,6 @@ namespace OpenVASP.Tests
         {
             Assert.NotNull(response);
 
-            Assert.Equal(request.MessageEnvelope.Topic, response.MessageEnvelope.Topic);
-            Assert.Equal(request.MessageEnvelope.EncryptionType, response.MessageEnvelope.EncryptionType);
-            Assert.Equal(request.MessageEnvelope.EncryptionKey, response.MessageEnvelope.EncryptionKey);
-
             Assert.Equal(request.HandShake.TopicB, response.HandShake.TopicB);
 
             Assert.Equal(request.Comment, response.Comment);
@@ -335,10 +314,6 @@ namespace OpenVASP.Tests
         private static void AssertTransferRequest(TransferRequestMessage response, TransferRequestMessage request)
         {
             Assert.NotNull(response);
-
-            Assert.Equal(request.MessageEnvelope.Topic, response.MessageEnvelope.Topic);
-            Assert.Equal(request.MessageEnvelope.EncryptionType, response.MessageEnvelope.EncryptionType);
-            Assert.Equal(request.MessageEnvelope.EncryptionKey, response.MessageEnvelope.EncryptionKey);
 
             Assert.Equal(request.Comment, response.Comment);
 
@@ -380,10 +355,6 @@ namespace OpenVASP.Tests
         private static void AssertTransferReply(TransferReplyMessage response, TransferReplyMessage request)
         {
             Assert.NotNull(response);
-
-            Assert.Equal(request.MessageEnvelope.Topic, response.MessageEnvelope.Topic);
-            Assert.Equal(request.MessageEnvelope.EncryptionType, response.MessageEnvelope.EncryptionType);
-            Assert.Equal(request.MessageEnvelope.EncryptionKey, response.MessageEnvelope.EncryptionKey);
 
             Assert.Equal(request.Comment, response.Comment);
 
@@ -535,13 +506,6 @@ namespace OpenVASP.Tests
 
             var request = new SessionRequestMessage(message, handshake, vaspInformation)
             {
-                MessageEnvelope = new MessageEnvelope()
-                {
-                    EncryptionType = EncryptionType.Assymetric,
-                    EncryptionKey = "123",
-                    Topic = topic,
-                    SigningKey = "123"
-                },
                 Comment = "This is test message",
             };
             return request;
@@ -596,13 +560,6 @@ namespace OpenVASP.Tests
 
             var request = new SessionReplyMessage(message, handshake, vaspInformation)
             {
-                MessageEnvelope = new MessageEnvelope()
-                {
-                    EncryptionType = EncryptionType.Assymetric,
-                    EncryptionKey = "123",
-                    Topic = topic,
-                    SigningKey = "123"
-                },
                 Comment = "This is test message",
             };
 
@@ -668,13 +625,6 @@ namespace OpenVASP.Tests
 
             var request = new TransferRequestMessage(message, originator, beneficiary, transferRequest, vaspInformation)
             {
-                MessageEnvelope = new MessageEnvelope()
-                {
-                    EncryptionType = EncryptionType.Assymetric,
-                    EncryptionKey = "123",
-                    Topic = topic,
-                    SigningKey = "123"
-                },
                 Comment = "This is test message",
             };
 
@@ -740,13 +690,6 @@ namespace OpenVASP.Tests
 
             var request = new TransferReplyMessage(message, originator, beneficiary, transferReply, vaspInformation)
             {
-                MessageEnvelope = new MessageEnvelope()
-                {
-                    EncryptionType = EncryptionType.Assymetric,
-                    EncryptionKey = "123",
-                    Topic = topic,
-                    SigningKey = "123"
-                },
                 Comment = "This is test message",
             };
 
@@ -813,13 +756,6 @@ namespace OpenVASP.Tests
 
             var request = new TransferDispatchMessage(message, originator, beneficiary, transferReply, transaction, vaspInformation)
             {
-                MessageEnvelope = new MessageEnvelope()
-                {
-                    EncryptionType = EncryptionType.Assymetric,
-                    EncryptionKey = "123",
-                    Topic = topic,
-                    SigningKey = "123"
-                },
                 Comment = "This is test message",
             };
 
@@ -886,13 +822,6 @@ namespace OpenVASP.Tests
 
             var request = new TransferConfirmationMessage(message, originator, beneficiary, transferReply, transaction, vaspInformation)
             {
-                MessageEnvelope = new MessageEnvelope()
-                {
-                    EncryptionType = EncryptionType.Assymetric,
-                    EncryptionKey = "123",
-                    Topic = topic,
-                    SigningKey = "123"
-                },
                 Comment = "This is test message",
             };
 
@@ -940,13 +869,6 @@ namespace OpenVASP.Tests
 
             var request = new TerminationMessage(message, vaspInformation)
             {
-                MessageEnvelope = new MessageEnvelope()
-                {
-                    EncryptionType = EncryptionType.Assymetric,
-                    EncryptionKey = "123",
-                    Topic = topic,
-                    SigningKey = "123"
-                },
                 Comment = "This is test message",
             };
             return request;

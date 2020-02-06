@@ -14,7 +14,6 @@ namespace OpenVASP.Tests.Client.Sessions
         private readonly IEthereumRpc _ethereumRpc;
         private readonly string _beneficiaryPubHandshakeKey;
         private readonly string _pubEncryptionKey;
-        private readonly VirtualAssetssAccountNumber _originatorVaan;
         private readonly string _clientName;
         private readonly IEnsProvider _ensProvider;
         private readonly Originator _originator;
@@ -28,7 +27,6 @@ namespace OpenVASP.Tests.Client.Sessions
             Originator originator,
             VaspContractInfo originatorVaspContractInfo,
             VaspInformation originatorVasp,
-            VirtualAssetssAccountNumber originatorVaan,
             VirtualAssetssAccountNumber beneficiaryVaan,
             string beneficiaryPubSigningKey,
             string beneficiaryPubHandshakeKey,
@@ -50,7 +48,6 @@ namespace OpenVASP.Tests.Client.Sessions
                 transportClient, 
                 signService)
         {
-            this._originatorVaan = originatorVaan;
             this._beneficiaryVaan = beneficiaryVaan;
             this.SessionId = Guid.NewGuid().ToString();
             this._ethereumRpc = ethereumRpc;
@@ -120,15 +117,7 @@ namespace OpenVASP.Tests.Client.Sessions
         {
             var transferRequest = new TransferRequestMessage(
                 this.SessionId,
-                new Originator(
-                    _vaspContractInfo.Name,
-                    _originatorVaan.Vaan,
-                    _vaspContractInfo.Address,
-                    null,
-                    null,
-                    null,
-                    null
-                ),
+                _originator,
                 new Beneficiary("", _beneficiaryVaan.Vaan), 
                 new TransferRequest(
                     instruction.VirtualAssetTransfer.VirtualAssetType, 

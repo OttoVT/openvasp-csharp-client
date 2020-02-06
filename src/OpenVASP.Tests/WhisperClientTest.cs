@@ -82,19 +82,18 @@ namespace OpenVASP.Tests
 
             var request = new SessionRequestMessage(message, handshake, vaspInformation)
             {
-                MessageEnvelope = new MessageEnvelope()
-                {
-                    EncryptionType = EncryptionType.Assymetric,
-                    EncryptionKey = receiverPubKey,
-                    Topic = topic,
-                    SigningKey = kId
-                },
                 Comment = "This is test message",
             };
 
             var whisperMessageFormatter = new WhisperMessageFormatter();
             var payload = whisperMessageFormatter.GetPayload(request);
-            var envelope = whisperMessageFormatter.GetEnvelope(request);
+            var envelope = new MessageEnvelope()
+            {
+                EncryptionType = EncryptionType.Assymetric,
+                EncryptionKey = receiverPubKey,
+                Topic = topic,
+                SigningKey = kId
+            };
 
             var messageHash = await whisperClient.SendMessageAsync(
                 envelope.Topic,
@@ -130,11 +129,6 @@ namespace OpenVASP.Tests
 
 
             Assert.NotNull(response);
-
-            Assert.Equal(request.MessageEnvelope.Topic, response.MessageEnvelope.Topic);
-            //Assert.Equal(request.MessageEnvelope.Signature, response.MessageEnvelope.Signature);
-            Assert.Equal(request.MessageEnvelope.EncryptionType, response.MessageEnvelope.EncryptionType);
-            Assert.Equal(request.MessageEnvelope.EncryptionKey, response.MessageEnvelope.EncryptionKey);
 
             Assert.Equal(request.HandShake.TopicA, response.HandShake.TopicA);
             Assert.Equal(request.HandShake.EcdhPubKey, response.HandShake.EcdhPubKey);
