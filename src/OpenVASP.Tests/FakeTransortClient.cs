@@ -2,38 +2,70 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using OpenVASP.Messaging;
+using OpenVASP.Messaging.Messages;
+using OpenVASP.Messaging.Messages.Entities;
+using OpenVASP.Tests.Client;
 
 namespace OpenVASP.Tests
 {
-    public class FakeTransortClient : ITransportClient
+
+    public class TransportMessage
     {
-        private ConcurrentQueue<ReceivedMessage> queue = new ConcurrentQueue<ReceivedMessage>();
-
-        public FakeTransortClient()
+        private TransportMessage(MessageBase message, string payload, string signature)
         {
-
+            this.Message = message;
+            this.Payload = payload;
+            this.Signature = signature;
         }
 
-        public Task<string> SendMessageAsync(MessageEnvelope messageEnvelope, string payload)
-        {
-            queue.Enqueue(new ReceivedMessage()
-            {
-                MessageEnvelope = messageEnvelope,
-                Payload = payload
-            });
+        public string Payload { get; }
 
-            return Task.FromResult(queue.Count.ToString());
+        public string Signature { get; }
+
+        public MessageBase Message { get; }
+
+        public static TransportMessage CreateMessage(MessageBase messageBase, string payload, string signature)
+        {
+            var message = new TransportMessage(messageBase, payload, signature);
+
+            return message;
+        }
+    }
+
+    public class FakeTransportClient : ITransportClient
+    {
+        private readonly ConcurrentQueue<TransportMessage> _queue =
+            new ConcurrentQueue<TransportMessage>();
+        private readonly IMessageFormatter _messageFormatter;
+        private readonly ISignService _signService;
+
+        public FakeTransportClient(IMessageFormatter messageFormatter, ISignService signService)
+        {
+            this._messageFormatter = messageFormatter;
+            this._signService = signService;
+        }
+        
+        public Task<string> SendAsync(MessageEnvelope messageEnvelope, MessageBase message)
+        {
+            var payload = _messageFormatter.GetPayload(message);
+            var sign = _signService.SignPayload(payload, messageEnvelope.SigningKey);
+
+            _queue.Enqueue(TransportMessage.CreateMessage(message, payload, sign));
+
+            return Task.FromResult(_queue.Count.ToString());
         }
 
-        public Task<ReceivedMessage[]> GetMessagesAsync(string source)
+        public Task<IReadOnlyCollection<TransportMessage>> GetSessionMessagesAsync(string messageFilter)
         {
-            List<ReceivedMessage> messages = new List<ReceivedMessage>();
-            while (queue.TryDequeue(out var received))
+            var messages = new List<TransportMessage>();
+            while (_queue.TryDequeue(out var received))
             {
                 messages.Add(received);
             }
 
-            return Task.FromResult(messages.ToArray());
+            var result = messages.ToArray();
+
+            return Task.FromResult((IReadOnlyCollection<TransportMessage>)result);
         }
     }
 }

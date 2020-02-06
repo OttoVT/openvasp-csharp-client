@@ -23,7 +23,7 @@ namespace OpenVASP.Tests.Client
         public async Task<string> SendAsync(MessageEnvelope messageEnvelope, MessageBase message)
         {
             var payload = _messageFormatter.GetPayload(message);
-            var sign = _signService.SignPayload(payload, messageEnvelope.Signature);
+            var sign = _signService.SignPayload(payload, messageEnvelope.SigningKey);
 
             return await _whisper.SendMessageAsync(
                 messageEnvelope.Topic, 
@@ -32,23 +32,23 @@ namespace OpenVASP.Tests.Client
                 payload + sign);
         }
 
-        public async Task<IReadOnlyCollection<(MessageBase Message, string Payload, string Signature)>> GetSessionMessagesAsync(string messageFilter)
+        public async Task<IReadOnlyCollection<TransportMessage>> GetSessionMessagesAsync(string messageFilter)
         {
             var messages = await _whisper.GetMessagesAsync(messageFilter);
 
             if (messages == null || messages.Count == 0)
             {
-                return new (MessageBase, string, string)[] { };
+                return new TransportMessage[] { };
             }
 
             var serializedMessages = messages.Select(x =>
             {
                 var payload = x.Payload.Substring(0, x.Payload.Length - 130);
                 var sign = x.Payload.Substring(x.Payload.Length - 130, 130);
-                x.MessageEnvelope.Signature = sign;
+                x.MessageEnvelope.SigningKey = sign;
                 var message = _messageFormatter.Deserialize(payload, x.MessageEnvelope);
 
-                return (message, payload, sign);
+                return TransportMessage.CreateMessage(message, payload, sign);
             }).ToArray();
 
             return serializedMessages;

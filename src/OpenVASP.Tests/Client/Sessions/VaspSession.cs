@@ -184,7 +184,7 @@ namespace OpenVASP.Tests.Client.Sessions
             await _transportClient.SendAsync(new MessageEnvelope()
             {
                 Topic = this.CounterPartyTopic,
-                Signature = _privateSigningKey,
+                SigningKey = _privateSigningKey,
                 EncryptionType = EncryptionType.Symmetric,
                 EncryptionKey = _sharedSymKeyId
             }, terminationMessage);

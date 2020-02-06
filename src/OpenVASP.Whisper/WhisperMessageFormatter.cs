@@ -16,7 +16,7 @@ namespace OpenVASP.Whisper
             {
                 EncryptionType = messageBase.MessageEnvelope.EncryptionType,
                 Topic = messageBase.MessageEnvelope.Topic,
-                Signature = messageBase.MessageEnvelope.Signature,
+                SigningKey = messageBase.MessageEnvelope.SigningKey,
                 EncryptionKey = messageBase.MessageEnvelope.EncryptionKey
             };
 

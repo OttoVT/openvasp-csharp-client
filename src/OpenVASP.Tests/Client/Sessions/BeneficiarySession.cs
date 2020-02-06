@@ -49,7 +49,7 @@ namespace OpenVASP.Tests.Client.Sessions
                     await _transportClient.SendAsync(new MessageEnvelope()
                     {
                         Topic = this.CounterPartyTopic,
-                        Signature = _privateSigningKey,
+                        SigningKey = _privateSigningKey,
                         EncryptionType = EncryptionType.Symmetric,
                         EncryptionKey = _sharedSymKeyId
                     }, reply);
@@ -63,7 +63,7 @@ namespace OpenVASP.Tests.Client.Sessions
                     await _transportClient.SendAsync(new MessageEnvelope()
                     {
                         Topic = this.CounterPartyTopic,
-                        Signature = _privateSigningKey,
+                        SigningKey = _privateSigningKey,
                         EncryptionType = EncryptionType.Symmetric,
                         EncryptionKey = _sharedSymKeyId
                     }, reply);
@@ -88,7 +88,7 @@ namespace OpenVASP.Tests.Client.Sessions
                 EncryptionKey = _sharedSymKeyId,
                 EncryptionType = EncryptionType.Symmetric,
                 Topic = this.CounterPartyTopic,
-                Signature = this._privateSigningKey
+                SigningKey = this._privateSigningKey
             }, reply);
 
             await base.StartAsync();

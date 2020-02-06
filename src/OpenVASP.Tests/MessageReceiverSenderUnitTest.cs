@@ -17,187 +17,92 @@ namespace OpenVASP.Tests
 {
     public class MessageReceiverSenderUnitTest
     {
+        private static MessageEnvelope _envelope = new MessageEnvelope()
+        {
+            SigningKey = "0x74152a90669ef4c166a1d2b140d307181f262142486881f91a9277ee370960d9"
+        };
+
         [Fact]
         public async Task TestSendingSessionRequestMessage()
         {
-            SessionRequestMessage receivedMessage = null;
-            var messageHandlerResolverBuilder = new MessageHandlerResolverBuilder();
-            messageHandlerResolverBuilder.AddHandler(typeof(SessionRequestMessage),
-                new SessionRequestMessageHandler((messageForProcessing, token) =>
-                {
-                    receivedMessage = messageForProcessing;
-                    return Task.FromResult(0);
-                }));
-            var fakeTransport = new FakeTransortClient();
-            var messageSender = new MessageSender(new WhisperMessageFormatter(), fakeTransport);
-            var messageHandlerResolver = messageHandlerResolverBuilder.Build();
-            var messageReceiver = new MessageReceiver(new WhisperMessageFormatter(), fakeTransport, messageHandlerResolver);
             var request = GetSessionRequestMessage();
 
-            var messageHash = await messageSender.SendSessionRequestAsync(request);
+            var fakeTransport = new FakeTransportClient(new WhisperMessageFormatter(), new WhisperSignService());
+            var messageHash = await fakeTransport.SendAsync(_envelope, request);
+            var receivedMessage =  (await fakeTransport.GetSessionMessagesAsync("fake")).First();
 
-            await messageReceiver.ReceiveMessagesAsync("fakeSource");
-
-            var response = receivedMessage;
-
-            AssertSessionRequest(response, request);
+            AssertSessionRequest(receivedMessage.Message as SessionRequestMessage, request);
         }
 
         [Fact]
         public async Task TestSendingSessionReplyMessage()
         {
-            var fakeTransport = new FakeTransortClient();
-            SessionReplyMessage receivedMessage = null;
-            var messageHandlerResolverBuilder = new MessageHandlerResolverBuilder();
-            messageHandlerResolverBuilder.AddHandler(typeof(SessionReplyMessage),
-                new SessionReplyMessageHandler((messageForProcessing, token) =>
-                {
-                    receivedMessage = messageForProcessing;
-                    return Task.FromResult(0);
-                }));
-            var messageHandlerResolver = messageHandlerResolverBuilder.Build();
-            var messageSender = new MessageSender(new WhisperMessageFormatter(), fakeTransport);
-            var messageReceiver = new MessageReceiver(new WhisperMessageFormatter(), fakeTransport, messageHandlerResolver);
             var request = GetSessionReplyMessage();
-            var serialized = Newtonsoft.Json.JsonConvert.SerializeObject(request);
 
-            var messageHash = await messageSender.SendMessageAsync(request);
+            var fakeTransport = new FakeTransportClient(new WhisperMessageFormatter(), new WhisperSignService());
+            var messageHash = await fakeTransport.SendAsync(_envelope, request);
+            var response = (await fakeTransport.GetSessionMessagesAsync("fake")).First();
 
-            await messageReceiver.ReceiveMessagesAsync("fakeSource");
-
-            var response = receivedMessage;
-
-            AssertSessionReply(response, request);
+            AssertSessionReply(response.Message as SessionReplyMessage, request);
         }
 
         [Fact]
         public async Task TestSendingTransferRequestMessage()
         {
-            var fakeTransport = new FakeTransortClient();
-            TransferRequestMessage receivedMessage = null;
-            var messageSender = new MessageSender(new WhisperMessageFormatter(), fakeTransport);
-            var messageHandlerResolverBuilder = new MessageHandlerResolverBuilder();
-            messageHandlerResolverBuilder.AddHandler(typeof(TransferRequestMessage),
-                new TransferRequestMessageHandler((messageForProcessing, token) =>
-                {
-                    receivedMessage = messageForProcessing;
-                    return Task.FromResult(0);
-                }));
-            var messageHandlerResolver = messageHandlerResolverBuilder.Build();
-            var messageReceiver = new MessageReceiver(new WhisperMessageFormatter(), fakeTransport, messageHandlerResolver);
             var request = GetTransferRequestMessage();
 
-            var messageHash = await messageSender.SendMessageAsync(request);
+            var fakeTransport = new FakeTransportClient(new WhisperMessageFormatter(), new WhisperSignService());
+            var messageHash = await fakeTransport.SendAsync(_envelope, request);
+            var response = (await fakeTransport.GetSessionMessagesAsync("fake")).First();
 
-            await messageReceiver.ReceiveMessagesAsync("fakeSource");
-
-            var response = receivedMessage;
-
-            AssertTransferRequest(response, request);
+            AssertTransferRequest(response.Message as TransferRequestMessage, request);
         }
 
         [Fact]
         public async Task TestSendingTransferReplyMessage()
         {
-            var fakeTransport = new FakeTransortClient();
-            TransferReplyMessage receivedMessage = null;
-            var messageSender = new MessageSender(new WhisperMessageFormatter(), fakeTransport);
-            var messageHandlerResolverBuilder = new MessageHandlerResolverBuilder();
-            messageHandlerResolverBuilder.AddHandler(typeof(TransferReplyMessage),
-                new TransferReplyMessageHandler((messageForProcessing, token) =>
-                {
-                    receivedMessage = messageForProcessing;
-                    return Task.FromResult(0);
-                }));
-            var messageHandlerResolver = messageHandlerResolverBuilder.Build();
-            var messageReceiver = new MessageReceiver(new WhisperMessageFormatter(), fakeTransport, messageHandlerResolver);
             var request = GetTransferReplyMessage();
 
-            var messageHash = await messageSender.SendMessageAsync(request);
+            var fakeTransport = new FakeTransportClient(new WhisperMessageFormatter(), new WhisperSignService());
+            var messageHash = await fakeTransport.SendAsync(_envelope, request);
+            var response = (await fakeTransport.GetSessionMessagesAsync("fake")).First();
 
-            await messageReceiver.ReceiveMessagesAsync("fakeSource");
-
-            var response = receivedMessage;
-
-            AssertTransferReply(response, request);
+            AssertTransferReply(response.Message as TransferReplyMessage, request);
         }
 
         [Fact]
         public async Task TestSendingTransferDispatchMessage()
         {
-            var fakeTransport = new FakeTransortClient();
-            TransferDispatchMessage receivedMessage = null;
-            var messageSender = new MessageSender(new WhisperMessageFormatter(), fakeTransport);
-            var messageHandlerResolverBuilder = new MessageHandlerResolverBuilder();
-            messageHandlerResolverBuilder.AddHandler(typeof(TransferDispatchMessage),
-                new TransferDispatchMessageHandler((messageForProcessing, token) =>
-                {
-                    receivedMessage = messageForProcessing;
-                    return Task.FromResult(0);
-                }));
-            var messageHandlerResolver = messageHandlerResolverBuilder.Build();
-            var messageReceiver = new MessageReceiver(new WhisperMessageFormatter(), fakeTransport, messageHandlerResolver);
             var request = GetTransferDispatchMessage();
 
-            var messageHash = await messageSender.SendMessageAsync(request);
+            var fakeTransport = new FakeTransportClient(new WhisperMessageFormatter(), new WhisperSignService());
+            var messageHash = await fakeTransport.SendAsync(_envelope, request);
+            var response = (await fakeTransport.GetSessionMessagesAsync("fake")).First();
 
-            await messageReceiver.ReceiveMessagesAsync("fakeSource");
-
-            var response = receivedMessage;
-
-            AssertTransferDispatch(response, request);
+            AssertTransferDispatch(response.Message as TransferDispatchMessage, request);
         }
 
         [Fact]
         public async Task TestSendingTransferConfirmationMessage()
         {
-            var fakeTransport = new FakeTransortClient();
-            TransferConfirmationMessage receivedMessage = null;
-            var messageSender = new MessageSender(new WhisperMessageFormatter(), fakeTransport);
-            var messageHandlerResolverBuilder = new MessageHandlerResolverBuilder();
-            messageHandlerResolverBuilder.AddHandler(typeof(TransferConfirmationMessage),
-                new TransferConfirmationMessageHandler((messageForProcessing, token) =>
-                {
-                    receivedMessage = messageForProcessing;
-                    return Task.FromResult(0);
-                }));
-            var messageHandlerResolver = messageHandlerResolverBuilder.Build();
-            var messageReceiver = new MessageReceiver(new WhisperMessageFormatter(), fakeTransport, messageHandlerResolver);
             var request = GetTransferConfirmationMessage();
 
-            var messageHash = await messageSender.SendMessageAsync(request);
+            var fakeTransport = new FakeTransportClient(new WhisperMessageFormatter(), new WhisperSignService());
+            var messageHash = await fakeTransport.SendAsync(_envelope, request);
+            var response = (await fakeTransport.GetSessionMessagesAsync("fake")).First();
 
-            await messageReceiver.ReceiveMessagesAsync("fakeSource");
-
-            var response = receivedMessage;
-
-            AssertTransferConfirmation(response, request);
+            AssertTransferConfirmation(response.Message as TransferConfirmationMessage, request);
         }
 
         [Fact]
         public async Task TestSendingTerminationMessage()
         {
-            var fakeTransport = new FakeTransortClient();
-            TerminationMessage receivedMessage = null;
-            var messageSender = new MessageSender(new WhisperMessageFormatter(), fakeTransport);
-            var messageHandlerResolverBuilder = new MessageHandlerResolverBuilder();
-            messageHandlerResolverBuilder.AddHandler(typeof(TerminationMessage),
-                new TerminationMessageHandler((messageForProcessing, token) =>
-                {
-                    receivedMessage = messageForProcessing;
-                    return Task.FromResult(0);
-                }));
-            var messageHandlerResolver = messageHandlerResolverBuilder.Build();
-            var messageReceiver = new MessageReceiver(new WhisperMessageFormatter(), fakeTransport, messageHandlerResolver);
             var request = GetTerminationMessage();
+            var fakeTransport = new FakeTransportClient(new WhisperMessageFormatter(), new WhisperSignService());
+            var messageHash = await fakeTransport.SendAsync(_envelope, request);
+            var response = (await fakeTransport.GetSessionMessagesAsync("fake")).First();
 
-            var messageHash = await messageSender.SendMessageAsync(request);
-
-            await messageReceiver.ReceiveMessagesAsync("fakeSource");
-
-            var response = receivedMessage;
-
-            AssertTermination(response, request);
+            AssertTermination(response.Message as TerminationMessage, request);
         }
 
         private void AssertTermination(TerminationMessage response, TerminationMessage request)
@@ -635,7 +540,7 @@ namespace OpenVASP.Tests
                     EncryptionType = EncryptionType.Assymetric,
                     EncryptionKey = "123",
                     Topic = topic,
-                    Signature = "123"
+                    SigningKey = "123"
                 },
                 Comment = "This is test message",
             };
@@ -696,7 +601,7 @@ namespace OpenVASP.Tests
                     EncryptionType = EncryptionType.Assymetric,
                     EncryptionKey = "123",
                     Topic = topic,
-                    Signature = "123"
+                    SigningKey = "123"
                 },
                 Comment = "This is test message",
             };
@@ -768,7 +673,7 @@ namespace OpenVASP.Tests
                     EncryptionType = EncryptionType.Assymetric,
                     EncryptionKey = "123",
                     Topic = topic,
-                    Signature = "123"
+                    SigningKey = "123"
                 },
                 Comment = "This is test message",
             };
@@ -840,7 +745,7 @@ namespace OpenVASP.Tests
                     EncryptionType = EncryptionType.Assymetric,
                     EncryptionKey = "123",
                     Topic = topic,
-                    Signature = "123"
+                    SigningKey = "123"
                 },
                 Comment = "This is test message",
             };
@@ -913,7 +818,7 @@ namespace OpenVASP.Tests
                     EncryptionType = EncryptionType.Assymetric,
                     EncryptionKey = "123",
                     Topic = topic,
-                    Signature = "123"
+                    SigningKey = "123"
                 },
                 Comment = "This is test message",
             };
@@ -986,7 +891,7 @@ namespace OpenVASP.Tests
                     EncryptionType = EncryptionType.Assymetric,
                     EncryptionKey = "123",
                     Topic = topic,
-                    Signature = "123"
+                    SigningKey = "123"
                 },
                 Comment = "This is test message",
             };
@@ -1040,7 +945,7 @@ namespace OpenVASP.Tests
                     EncryptionType = EncryptionType.Assymetric,
                     EncryptionKey = "123",
                     Topic = topic,
-                    Signature = "123"
+                    SigningKey = "123"
                 },
                 Comment = "This is test message",
             };

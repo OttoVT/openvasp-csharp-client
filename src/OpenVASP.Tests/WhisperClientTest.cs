@@ -12,6 +12,7 @@ using System.Security.Cryptography;
 using Nethereum.Signer;
 using OpenVASP.Messaging.Messages.Entities;
 using OpenVASP.ProtocolMessages.Messages;
+using OpenVASP.Tests.Client;
 
 namespace OpenVASP.Tests
 {
@@ -23,7 +24,7 @@ namespace OpenVASP.Tests
         {
             var gethUrl = "";
             var web3 = new Web3(gethUrl);
-            var whisperClient = new WhisperClient(gethUrl);
+            var whisperClient = new WhisperRpc(web3, new WhisperMessageFormatter());
 
             //Should be a contract
             var vaspKey = EthECKey.GenerateKey();
@@ -86,7 +87,7 @@ namespace OpenVASP.Tests
                     EncryptionType = EncryptionType.Assymetric,
                     EncryptionKey = receiverPubKey,
                     Topic = topic,
-                    Signature = kId
+                    SigningKey = kId
                 },
                 Comment = "This is test message",
             };
@@ -95,7 +96,11 @@ namespace OpenVASP.Tests
             var payload = whisperMessageFormatter.GetPayload(request);
             var envelope = whisperMessageFormatter.GetEnvelope(request);
 
-            var messageHash = await whisperClient.SendMessageAsync(envelope, payload);
+            var messageHash = await whisperClient.SendMessageAsync(
+                envelope.Topic,
+                envelope.EncryptionKey,
+                envelope.EncryptionType,
+                payload);
 
             ShhMessage shhMessage = null;
             for (int i = 0; i < 10; i++)
@@ -118,7 +123,7 @@ namespace OpenVASP.Tests
                 Topic = shhMessage.Topic,
                 EncryptionType = EncryptionType.Assymetric,
                 EncryptionKey = shhMessage.RecipientPublicKey,
-                Signature = shhMessage.Sig
+                SigningKey = shhMessage.Sig
             };
 
             var response = (SessionRequestMessage)whisperMessageFormatter.Deserialize(shhMessage.Payload, messageEnvelope);

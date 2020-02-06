@@ -108,7 +108,7 @@ namespace OpenVASP.Tests.Client.Sessions
             await _transportClient.SendAsync(new MessageEnvelope()
             {
                 Topic = _beneficiaryVaan.VaspCode.Code,
-                Signature = _privateSigningKey,
+                SigningKey = _privateSigningKey,
                 EncryptionType = EncryptionType.Assymetric,
                 EncryptionKey = _beneficiaryPubHandshakeKey
             }, sessionRequestMessage);
@@ -140,7 +140,7 @@ namespace OpenVASP.Tests.Client.Sessions
             await _transportClient.SendAsync(new MessageEnvelope()
             {
                 Topic = this.CounterPartyTopic,
-                Signature = _privateSigningKey,
+                SigningKey = _privateSigningKey,
                 EncryptionType = EncryptionType.Symmetric,
                 EncryptionKey = _sharedSymKeyId
             }, transferRequest);
@@ -161,7 +161,7 @@ namespace OpenVASP.Tests.Client.Sessions
             await _transportClient.SendAsync(new MessageEnvelope()
             {
                 Topic = this.CounterPartyTopic,
-                Signature = _privateSigningKey,
+                SigningKey = _privateSigningKey,
                 EncryptionType = EncryptionType.Symmetric,
                 EncryptionKey = _sharedSymKeyId
             }, transferRequest);

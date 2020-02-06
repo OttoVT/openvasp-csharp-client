@@ -131,7 +131,7 @@ namespace OpenVASP.Tests.Client
                         Topic = x.Topic,
                         EncryptionType = EncryptionType.Assymetric,
                         EncryptionKey = x.RecipientPublicKey,
-                        Signature = x.Sig
+                        SigningKey = x.Sig
                     },
                     Payload = x.Payload
                 }).ToArray();

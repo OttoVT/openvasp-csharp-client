@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 using OpenVASP.Messaging;
 using OpenVASP.Messaging.Messages;
 using OpenVASP.Messaging.Messages.Entities;
+using OpenVASP.Tests.Client;
 using OpenVASP.Whisper;
 using Xunit;
 using Xunit.Abstractions;
@@ -51,7 +52,7 @@ namespace OpenVASP.Tests
         [Fact(Skip = "Disabled")]
         public async Task WhisperFlowTestAsync()
         {
-            var geth = "http://144.76.25.187:8025";
+            var geth = "";
             var web3 = new Web3(geth);
 
             var senderKId = await web3.Shh.KeyPair.NewKeyPair.SendRequestAsync();
@@ -99,7 +100,7 @@ namespace OpenVASP.Tests
                         Topic = beneficiaryVaspCodeTopic,
                         EncryptionKey = receiverHandshakePubKey,
                         EncryptionType = EncryptionType.Assymetric,
-                        Signature = receiverSignPubKey
+                        SigningKey = receiverSignPubKey
                     },
                     Comment = "This is test to receiver message"
                 };
@@ -128,7 +129,7 @@ namespace OpenVASP.Tests
                         Topic = beneficiaryVaspCodeTopic,
                         EncryptionKey = receiverHandshakePubKey,
                         EncryptionType = EncryptionType.Assymetric,
-                        Signature = receiverSignPubKey
+                        SigningKey = receiverSignPubKey
                     },
                     Comment = "This is test to receiver message"
                 };
@@ -138,7 +139,7 @@ namespace OpenVASP.Tests
             #endregion
 
             var whisperFormatter = new WhisperMessageFormatter();
-            var whisperClient = new WhisperClient(geth);
+            var whisperClient = new WhisperRpc(web3, new WhisperMessageFormatter());
 
             var originatorMessageFilter = await web3.Shh.MessageFilter.NewMessageFilter.SendRequestAsync(new MessageFilterInput()
             {
@@ -155,14 +156,18 @@ namespace OpenVASP.Tests
             });
 
             var payload = whisperFormatter.GetPayload(requestToReceiver);
-            var sentHash1 = await whisperClient.SendMessageAsync(requestToReceiver.MessageEnvelope, payload);
+            var sentHash1 = await whisperClient.SendMessageAsync(
+                requestToReceiver.MessageEnvelope.Topic,
+                requestToReceiver.MessageEnvelope.EncryptionKey,
+                requestToReceiver.MessageEnvelope.EncryptionType,
+                payload);
 
             ReceivedMessage shhMessage = null;
             for (int i = 0; i < 100; i++)
             {
                 var messages = await whisperClient.GetMessagesAsync(beneficiaryMessageFilter);
 
-                if (messages != null && messages.Length != 0)
+                if (messages != null && messages.Count!= 0)
                 {
                     shhMessage = messages.First();
                     break;
@@ -189,7 +194,7 @@ namespace OpenVASP.Tests
             {
                 var messages = await whisperClient.GetMessagesAsync(originatorMessageFilter);
 
-                if (messages != null && messages.Length != 0)
+                if (messages != null && messages.Count != 0)
                 {
                     shhMessage = messages.First();
                     break;
@@ -324,22 +329,11 @@ namespace OpenVASP.Tests
             return sessionRequestMessage;
         }
 
-        //private bool VerifySignature(MessageBase sessionRequestMessage, string originatorSigningPubKey)
-        //{
-        //    var expectedSigner = new EthECKey(originatorSigningPubKey.HexToByteArray(), false);
-        //    var payload = _whisperFixture.WhisperMessageFormatter.GetPayload(sessionRequestMessage,);
-        //    var signerAddress = _whisperFixture.Signer.EncodeUTF8AndEcRecover(payload, sessionRequestMessage.Signature);
-
-        //    return expectedSigner.GetPublicAddress().Equals(signerAddress, StringComparison.CurrentCultureIgnoreCase);
-        //}
-
         private string GenerateSessionReply(string sessionId,
             string getMessageCode, string beneficiarySessionTopic, VaspInformation beneficiaryVaspInfo, string beneficiarySigningPrivateKey)
         {
             var handshake = new HandShakeResponse(beneficiarySessionTopic);
             var sessionReplyMessage = new SessionReplyMessage(sessionId, handshake, beneficiaryVaspInfo);
-            //var payload = _whisperFixture.WhisperMessageFormatter.GetPayload(sessionReplyMessage, withSignature: false);
-            //sessionReplyMessage.Signature = _whisperFixture.Signer.EncodeUTF8AndSign(payload, new EthECKey(beneficiarySigningPrivateKey));
             var payload = _whisperFixture.WhisperMessageFormatter.GetPayload(sessionReplyMessage);
 
             return payload;
