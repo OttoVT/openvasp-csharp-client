@@ -18,7 +18,7 @@ namespace OpenVASP.Whisper
         {
             var sign = _signer.EncodeUTF8AndSign(payload, new EthECKey(privateKey));
 
-            return sign;
+            return sign.RemoveHexPrefix();
         }
 
         public bool VerifySign(string payload, string sign, string pubKey)

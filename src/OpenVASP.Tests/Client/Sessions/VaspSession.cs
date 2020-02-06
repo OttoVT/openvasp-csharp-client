@@ -99,7 +99,11 @@ namespace OpenVASP.Tests.Client.Sessions
                                         _counterPartyPubSigningKey))
                                         continue;
 
-                                    var handlers = messageHandlerResolver.ResolveMessageHandlers(message.GetType());
+                                    var handlers = messageHandlerResolver.ResolveMessageHandlers(message.Message.GetType());
+
+                                    if (handlers == null || handlers.Length == 0)
+                                        continue;
+
                                     var tasks = handlers.Select(handler =>
                                         handler.HandleMessageAsync(message.Message, cancellationToken));
                                     currentlyProcessing.AddRange(tasks);

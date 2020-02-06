@@ -43,8 +43,8 @@ namespace OpenVASP.Tests.Client
 
             var serializedMessages = messages.Select(x =>
             {
-                var payload = x.Payload.Substring(0, x.Payload.Length - 65);
-                var sign = x.Payload.Substring(x.Payload.Length - 65, 65);
+                var payload = x.Payload.Substring(0, x.Payload.Length - 130);
+                var sign = x.Payload.Substring(x.Payload.Length - 130, 130);
                 x.MessageEnvelope.Signature = sign;
                 var message = _messageFormatter.Deserialize(payload, x.MessageEnvelope);
 

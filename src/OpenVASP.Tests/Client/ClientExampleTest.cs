@@ -253,14 +253,14 @@ namespace OpenVASP.Tests.Client
                 (request, currentSession) =>
                 {
                     var message = new TransferReplyMessage(currentSession.SessionId, TransferReplyMessage.TransferReplyMessageCode.TransferAccepted,
-                        default, 
-                        default, 
+                        request.Originator, 
+                        new Beneficiary("Mr. Test",request.Beneficiary.VAAN), 
                         new TransferReply(
                             request.Transfer.VirtualAssetType, 
                             request.Transfer.TransferType, 
                             request.Transfer.Amount, 
                             "0x0"),
-                        request.VASP );
+                        request.VASP);
 
                     return Task.FromResult(message);
                 },
@@ -268,8 +268,8 @@ namespace OpenVASP.Tests.Client
                 {
                     var message = new TransferConfirmationMessage(currentSession.SessionId, 
                         TransferConfirmationMessage.TransferConfirmationMessageCode.TransferConfirmed,
-                        default,
-                        default,
+                        dispatch.Originator,
+                        dispatch.Beneficiary,
                         dispatch.Transfer,
                         dispatch.Transaction,
                         dispatch.VASP);
@@ -277,7 +277,6 @@ namespace OpenVASP.Tests.Client
                     return Task.FromResult(message);
                 });
 
-            //originator.RunListener(messageHandler);
             beneficiary.RunListener(messageHandler);
 
             originator.SessionTerminated += sessionTerminationDelegate;
@@ -287,7 +286,22 @@ namespace OpenVASP.Tests.Client
             //beneficiary.TransferRequest += request => new TransferReply(VirtualAssetType.ETH, TransferType.BlockchainTransfer, "10", "1223");
             //beneficiary.TransferDispatch += message => new TransferConfirmationMessage();
 
-            var session = await originator.CreateSessionAsync("Test van der Test", originatorVaan, beneficiaryVaan);
+            var originatorDoc = Originator.CreateOriginatorForNaturalPerson(
+                    "Test van der Test",
+                    originatorVaan,
+                    new PostalAddress(
+                        "StreetX",
+                                44,
+                        "AddressLineX",
+                        "510051",
+                        "TownX",
+                        Country.List["DE"]),
+                    new PlaceOfBirth(DateTime.Today.AddYears(-30), "TownX", Country.List["DE"]),
+                    new NaturalPersonId[]
+                    {
+                        new NaturalPersonId("Id", NaturalIdentificationType.NationalIdentityNumber, Country.List["DE"]), 
+                    });
+            var session = await originator.CreateSessionAsync(originatorDoc, originatorVaan, beneficiaryVaan);
 
             var transferReply = await session.TransferRequestAsync(new TransferInstruction()
             {
@@ -316,6 +330,8 @@ namespace OpenVASP.Tests.Client
             beneficiary.Dispose();
 
             Assert.Equal(2, sessionTerminationCounter);
+            Assert.
+
 
             _testOutputHelper.WriteLine("End of test");
         }

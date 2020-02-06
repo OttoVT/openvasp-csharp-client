@@ -33,5 +33,17 @@
         public JuridicalPersonId[] JuridicalPersonId { get; set; }
 
         public string BIC { get; set; }
+
+        public static Originator CreateOriginatorForNaturalPerson(
+            string originatorName, 
+            VirtualAssetssAccountNumber vaan,
+            PostalAddress postalAddress,
+            PlaceOfBirth placeOfBirth,
+            NaturalPersonId[] naturalPersonIds)
+        {
+            var originator = new Originator(originatorName, vaan.Vaan, postalAddress, placeOfBirth, naturalPersonIds, null,null);
+
+            return originator;
+        }
     }
 }

@@ -80,8 +80,12 @@ namespace OpenVASP.Tests.Client
                             if (!isAuthorized)
                                 continue;
 
-                            var sharedSecret = this.HandshakeKey.GenerateSharedSecretHex(sessionRequestMessage.HandShake.EcdhPubKey);
                             var originatorVaspContractInfo = await _ethereumRpc.GetVaspContractInfoAync(sessionRequestMessage.VASP.VaspIdentity);
+
+                            if (!_signService.VerifySign(message.Payload, message.Signature, originatorVaspContractInfo.SigningKey))
+                                continue;
+
+                            var sharedSecret = this.HandshakeKey.GenerateSharedSecretHex(sessionRequestMessage.HandShake.EcdhPubKey);
 
                             var session = new BeneficiarySession(
                                 originatorVaspContractInfo,
@@ -133,7 +137,7 @@ namespace OpenVASP.Tests.Client
         public ConcurrentDictionary<string, OriginatorSession> OriginatorSessionsDict { get; } = new ConcurrentDictionary<string, OriginatorSession>();
 
         public async Task<OriginatorSession> CreateSessionAsync(
-            string clientName,
+            Originator originator,
             VirtualAssetssAccountNumber originatorVaan,
             VirtualAssetssAccountNumber beneficiaryVaan)
         {
@@ -143,7 +147,7 @@ namespace OpenVASP.Tests.Client
             var sharedKey = sessionKey.GenerateSharedSecretHex(contractInfo.HandshakeKey);
 
             var session = new OriginatorSession(
-                clientName,
+                originator,
                 this._vaspContractInfo,
                 this.VaspInfo,
                 originatorVaan,

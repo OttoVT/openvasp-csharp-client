@@ -4,7 +4,7 @@
     {
         public Beneficiary(string name, string vaan)
         {
-            Name = name;
+            Name = name ?? "";
             VAAN = vaan;
         }
 

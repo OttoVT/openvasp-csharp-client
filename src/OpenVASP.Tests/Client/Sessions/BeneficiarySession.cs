@@ -88,7 +88,7 @@ namespace OpenVASP.Tests.Client.Sessions
                 EncryptionKey = _sharedSymKeyId,
                 EncryptionType = EncryptionType.Symmetric,
                 Topic = this.CounterPartyTopic,
-                Signature = this._sharedSymKeyId
+                Signature = this._privateSigningKey
             }, reply);
 
             await base.StartAsync();

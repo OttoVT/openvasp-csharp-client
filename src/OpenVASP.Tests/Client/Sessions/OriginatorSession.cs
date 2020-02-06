@@ -17,6 +17,7 @@ namespace OpenVASP.Tests.Client.Sessions
         private readonly VirtualAssetssAccountNumber _originatorVaan;
         private readonly string _clientName;
         private readonly IEnsProvider _ensProvider;
+        private readonly Originator _originator;
 
         private TaskCompletionSource<SessionReplyMessage> _sessionReplyCompletionSource = new TaskCompletionSource<SessionReplyMessage>();
         private TaskCompletionSource<TransferReplyMessage> _transferReplyCompletionSource = new TaskCompletionSource<TransferReplyMessage>();
@@ -24,7 +25,7 @@ namespace OpenVASP.Tests.Client.Sessions
 
 
         public OriginatorSession(
-            string clientName,
+            Originator originator,
             VaspContractInfo originatorVaspContractInfo,
             VaspInformation originatorVasp,
             VirtualAssetssAccountNumber originatorVaan,
@@ -49,7 +50,6 @@ namespace OpenVASP.Tests.Client.Sessions
                 transportClient, 
                 signService)
         {
-            this._clientName = clientName;
             this._originatorVaan = originatorVaan;
             this._beneficiaryVaan = beneficiaryVaan;
             this.SessionId = Guid.NewGuid().ToString();
@@ -57,6 +57,7 @@ namespace OpenVASP.Tests.Client.Sessions
             this._beneficiaryPubHandshakeKey = beneficiaryPubHandshakeKey;
             this._pubEncryptionKey = pubEncryptionKey;
             //this._ensProvider = ensProvider;
+            this._originator = originator;
 
             _messageHandlerResolverBuilder.AddHandler(typeof(SessionReplyMessage),
                 new SessionReplyMessageHandler((sessionReplyMessage, token) =>
@@ -128,7 +129,7 @@ namespace OpenVASP.Tests.Client.Sessions
                     null,
                     null
                 ),
-                new Beneficiary(_clientName, _beneficiaryVaan.Vaan), 
+                new Beneficiary("", _beneficiaryVaan.Vaan), 
                 new TransferRequest(
                     instruction.VirtualAssetTransfer.VirtualAssetType, 
                     instruction.VirtualAssetTransfer.TransferType, 
@@ -150,15 +151,7 @@ namespace OpenVASP.Tests.Client.Sessions
         {
             var transferRequest = new TransferDispatchMessage(
                 this.SessionId,
-                new Originator(
-                    _vaspContractInfo.Name,
-                    _originatorVaan.Vaan,
-                    _vaspContractInfo.Address,
-                    null,
-                    null,
-                    null,
-                    null
-                ),
+                this._originator,
                 new Beneficiary(_clientName, _beneficiaryVaan.Vaan),
                 transferReply,
                 transaction,
