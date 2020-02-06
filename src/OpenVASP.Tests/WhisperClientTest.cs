@@ -126,7 +126,7 @@ namespace OpenVASP.Tests
                 SigningKey = shhMessage.Sig
             };
 
-            var response = (SessionRequestMessage)whisperMessageFormatter.Deserialize(shhMessage.Payload, messageEnvelope);
+            var response = (SessionRequestMessage)whisperMessageFormatter.Deserialize(shhMessage.Payload);
 
 
             Assert.NotNull(response);

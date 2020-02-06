@@ -324,7 +324,7 @@ namespace OpenVASP.Tests
 
         private SessionReplyMessage ParseSessionReplyMessage(string payload)
         {
-            var sessionRequestMessage = (SessionReplyMessage)_whisperFixture.WhisperMessageFormatter.Deserialize(payload, null);
+            var sessionRequestMessage = (SessionReplyMessage)_whisperFixture.WhisperMessageFormatter.Deserialize(payload);
 
             return sessionRequestMessage;
         }
@@ -355,7 +355,7 @@ namespace OpenVASP.Tests
 
         private SessionRequestMessage ParseSessionRequestMessage(string payload)
         {
-            var sessionRequestMessage = (SessionRequestMessage)_whisperFixture.WhisperMessageFormatter.Deserialize(payload, null);
+            var sessionRequestMessage = (SessionRequestMessage)_whisperFixture.WhisperMessageFormatter.Deserialize(payload);
 
             return sessionRequestMessage;
         }

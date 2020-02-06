@@ -95,7 +95,7 @@ namespace OpenVASP.Whisper
             return payload;
         }
 
-        public MessageBase Deserialize(string payload, MessageEnvelope messageEnvelope)
+        public MessageBase Deserialize(string payload)
         {
             var bytes = payload.HexToByteArray();
             var wrapper = ProtoMessageWrapper.Parser.ParseFrom(bytes);
@@ -155,11 +155,6 @@ namespace OpenVASP.Whisper
 
                     //TODO: Probably log it
                     break;
-            }
-
-            if (message != null)
-            {
-                message.MessageEnvelope = messageEnvelope;
             }
 
             return message;

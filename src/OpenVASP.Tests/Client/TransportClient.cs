@@ -46,7 +46,7 @@ namespace OpenVASP.Tests.Client
                 var payload = x.Payload.Substring(0, x.Payload.Length - 130);
                 var sign = x.Payload.Substring(x.Payload.Length - 130, 130);
                 x.MessageEnvelope.SigningKey = sign;
-                var message = _messageFormatter.Deserialize(payload, x.MessageEnvelope);
+                var message = _messageFormatter.Deserialize(payload);
 
                 return TransportMessage.CreateMessage(message, payload, sign);
             }).ToArray();

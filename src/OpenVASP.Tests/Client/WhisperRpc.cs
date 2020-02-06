@@ -105,7 +105,7 @@ namespace OpenVASP.Tests.Client
 
             var serializedMessages = messages.Select(x =>
             {
-                var message = _messageFormatter.Deserialize(x.Payload, x.MessageEnvelope);
+                var message = _messageFormatter.Deserialize(x.Payload);
 
                 return message;
             }).ToArray();

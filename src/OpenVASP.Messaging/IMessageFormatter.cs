@@ -8,6 +8,6 @@ namespace OpenVASP.Messaging
 
         string GetPayload(MessageBase sessionRequestMessage);
 
-        MessageBase Deserialize(string payload, MessageEnvelope messageEnvelope);
+        MessageBase Deserialize(string payload);
     }
 }
